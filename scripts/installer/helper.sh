@@ -138,16 +138,30 @@ function is_package_owned {
 }
 
 function track_installed_packages {
-    local cmd="$1"
+    local -a tokens
     if [[ "${DRY_RUN:-false}" == "true" ]]; then
         return 0
     fi
-    if [[ "$cmd" =~ (pacman|yay)[[:space:]]+.*(-S|--sync) ]]; then
-        for token in $cmd; do
+    if [[ $# -gt 0 ]]; then
+        tokens=("$@")
+    else
+        return 0
+    fi
+    local is_pkg_install=false
+    for token in "${tokens[@]}"; do
+        case "$token" in
+            pacman|yay) is_pkg_install=true ;;
+            -S|--sync) ;;
+        esac
+        if $is_pkg_install && [[ "$token" == "-S" || "$token" == "--sync" ]]; then
+            is_pkg_install=true
+            break
+        fi
+    done
+    if $is_pkg_install; then
+        for token in "${tokens[@]}"; do
             case "$token" in
-                sudo|pacman|yay|-*|--*|cd|"&&"|\|*|[0-9]*)
-                    continue
-                    ;;
+                sudo|pacman|yay|-*|--*|cd|"&&"|\|*|[0-9]*) continue ;;
                 *)
                     if pacman -Qq "$token" 2>/dev/null | grep -Fxq "$token"; then
                         record_owned_package "$token"
@@ -224,29 +238,31 @@ function check_disk_space {
 }
 
 # Function to run a command with optional confirmation and retry
-# use_sudo=yes (default) prefixes with sudo; use_sudo=no runs as invoking user
-function run_command {
-    local cmd="$1"
-    local description="$2"
-    local ask_confirm="${3:-yes}"
-    local use_sudo="${4:-yes}"
+# Array-based: avoids bash -c string injection. Pass command as separate args.
+# run_command_array desc ask_confirm use_sudo cmd [args...]
+function run_command_array {
+    local description="$1"
+    local ask_confirm="${2:-yes}"
+    local use_sudo="${3:-yes}"
+    shift 3
+    local -a cmd=("$@")
+    local -a full_cmd=()
     local max_retries=3
     local attempt=0
 
-    local full_cmd=""
     if [[ "$use_sudo" == "yes" ]]; then
-        full_cmd="sudo $cmd"
+        full_cmd=(sudo "${cmd[@]}")
     else
-        full_cmd="$cmd"
+        full_cmd=("${cmd[@]}")
     fi
 
     log_message "Attempting to run: $description"
     if [[ "${DRY_RUN:-false}" == "true" ]]; then
-        print_info "[DRY RUN] Would run: $full_cmd"
-        log_message "[DRY RUN] Would run: $full_cmd"
+        print_info "[DRY RUN] Would run: ${full_cmd[*]}"
+        log_message "[DRY RUN] Would run: ${full_cmd[*]}"
         return 0
     fi
-    print_info "\nCommand: $full_cmd"
+    print_info "\nCommand: ${full_cmd[*]}"
     if [[ "$ask_confirm" == "yes" ]]; then
         if ! ask_confirmation "$description"; then
             log_message "$description was skipped by user choice."
@@ -256,12 +272,11 @@ function run_command {
         print_info "\n$description"
     fi
 
-    # Use set +e to avoid conflicts with while loop
     set +e
-    while ! bash -c "$full_cmd"; do
+    while ! "${full_cmd[@]}"; do
         attempt=$((attempt + 1))
         print_error "Command failed (attempt $attempt/$max_retries)."
-        log_message "Command failed (attempt $attempt): $cmd"
+        log_message "Command failed (attempt $attempt): ${cmd[*]}"
         if [[ "$attempt" -ge "$max_retries" ]]; then
             print_error "$description failed after $max_retries attempts."
             log_message "$description failed after $max_retries attempts."
@@ -277,7 +292,7 @@ function run_command {
             fi
         else
             print_warning "$description failed and will not be retried."
-            log_message "$description failed and was not retried (auto mode)."
+            log_message "$description was not retried (auto mode)."
             set -e
             return 1
         fi
@@ -286,8 +301,31 @@ function run_command {
 
     print_success "$description completed successfully."
     log_message "$description completed successfully."
-    track_installed_packages "$cmd"
+    track_installed_packages "${cmd[@]}"
     return 0
+}
+
+# Backward-compatible wrapper: converts command string to array
+# NOTE: Prefer run_command_array for new code. This wrapper uses xargs -0
+# which only splits on null bytes, so callers must pre-normalize paths.
+function run_command {
+    local cmd_str="$1"
+    local description="$2"
+    local ask_confirm="${3:-yes}"
+    local use_sudo="${4:-yes}"
+
+    local -a cmd_array
+    # Use xargs to split the command string into tokens.
+    # -n1 prints one token per line; -d ' ' splits on spaces.
+    # This handles most simple commands but may not preserve all quoting.
+    mapfile -t cmd_array < <(echo "$cmd_str" | xargs -d ' ' -n1 2>/dev/null)
+
+    if [[ ${#cmd_array[@]} -eq 0 ]]; then
+        print_error "Empty command passed to run_command"
+        return 1
+    fi
+
+    run_command_array "$description" "$ask_confirm" "$use_sudo" "${cmd_array[@]}"
 }
 
 function check_os {
