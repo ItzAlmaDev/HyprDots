@@ -138,6 +138,7 @@ echo ""
 if $install_failed; then
     print_warning "=== Installation finished with errors ==="
     print_warning "Check the log for details: $LOG_FILE"
+    exit 1
 else
     print_info "=== Installation Complete ==="
 fi

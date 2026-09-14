@@ -44,6 +44,7 @@ setup_waybar() {
     if [[ ! -d "$HOME/.config/waybar" ]]; then
         print_error "Failed to copy waybar config"
         log_message "Failed to copy waybar config"
+        return 1
     else
         record_owned_config_files "$BASE_DIR/configs/waybar" "$HOME/.config/waybar"
     fi
@@ -59,6 +60,7 @@ setup_tofi() {
     if [[ ! -d "$HOME/.config/tofi" ]]; then
         print_error "Failed to copy tofi config"
         log_message "Failed to copy tofi config"
+        return 1
     else
         record_owned_config_files "$BASE_DIR/configs/tofi" "$HOME/.config/tofi"
     fi
@@ -74,6 +76,7 @@ setup_kitty() {
     if [[ ! -d "$HOME/.config/kitty" ]]; then
         print_error "Failed to copy kitty config"
         log_message "Failed to copy kitty config"
+        return 1
     else
         record_owned_config_files "$BASE_DIR/configs/kitty" "$HOME/.config/kitty"
     fi
@@ -88,6 +91,7 @@ setup_dunst() {
     if [[ ! -d "$HOME/.config/dunst" ]]; then
         print_error "Failed to copy dunst config"
         log_message "Failed to copy dunst config"
+        return 1
     else
         record_owned_config_files "$BASE_DIR/configs/dunst" "$HOME/.config/dunst"
     fi
@@ -103,6 +107,7 @@ setup_wlogout() {
     if [[ ! -d "$HOME/.config/wlogout" ]]; then
         print_error "Failed to copy wlogout config"
         log_message "Failed to copy wlogout config"
+        return 1
     else
         record_owned_config_files "$BASE_DIR/configs/wlogout" "$HOME/.config/wlogout"
     fi

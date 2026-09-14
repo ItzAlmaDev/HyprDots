@@ -21,7 +21,13 @@ run_command "pacman -Sy --noconfirm" "Sync package database" "yes"
 if command -v yay > /dev/null; then
     print_info "Skipping yay installation (already installed)."
 elif run_command "pacman -S --noconfirm --needed git base-devel" "Install YAY (Must)/Breaks the script" "yes"; then
-    run_command "cd /tmp && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg --noconfirm -si" "Build YAY (Must)/Breaks the script" "no" "no"
+    if ! run_command "cd /tmp && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg --noconfirm -si" "Build YAY (Must)/Breaks the script" "no" "no"; then
+        print_error "Failed to build yay. This is required for AUR packages."
+        exit 1
+    fi
+else
+    print_error "Failed to install git/base-devel. yay is required."
+    exit 1
 fi
 
 run_command "pacman -S --noconfirm --needed pipewire wireplumber pamixer brightnessctl playerctl" "Configuring audio, brightness and media control (Recommended)" "yes"

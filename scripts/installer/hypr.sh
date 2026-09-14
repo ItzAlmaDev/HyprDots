@@ -21,6 +21,7 @@ run_command "cp -r \"$BASE_DIR/configs/hypr/hyprland.conf\" \"$HOME/.config/hypr
 if [[ ! -f "$HOME/.config/hypr/hyprland.conf" ]]; then
     print_error "Failed to copy hyprland.conf"
     log_message "Failed to copy hyprland.conf"
+    return 1
 fi
 
 run_command "pacman -S --noconfirm --needed xdg-desktop-portal-hyprland" "Install XDG desktop portal for Hyprland" "yes"
