@@ -4,6 +4,11 @@ BASE_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")/../../")
 
 source "$BASE_DIR/scripts/installer/helper.sh"
 
+if [ "$(id -u)" -eq 0 ]; then
+    print_error "This script should not be run as root. Please run as a regular user."
+    exit 1
+fi
+
 log_message "Installation started for hypr section"
 print_info "\nStarting hypr setup..."
 print_info "\nEverything is recommended to INSTALL"
