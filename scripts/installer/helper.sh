@@ -29,23 +29,28 @@ if [[ -f "$LOG_FILE" ]]; then
 fi
 
 # Lock file to prevent concurrent runs
-LOCK_FILE="/tmp/hyprdots-install.lock"
+LOCK_FILE="${XDG_RUNTIME_DIR:-/tmp}/hyprdots-install-$UID.lock"
 exec 9>"$LOCK_FILE"
 if ! flock -n 9; then
     echo "Another instance of the installer is running. Please wait or remove $LOCK_FILE"
     exit 1
 fi
 
-# Install trap
-trap trap_clean EXIT INT TERM
+# Cleanup on exit (always runs) and signals (user interruption)
+trap _cleanup EXIT
+trap '_signal_exit' INT TERM HUP
 
-function trap_clean {
+function _cleanup {
     rm -f "$LOCK_FILE"
-    if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-        print_error "\n\nScript interrupted. Exiting.....\n"
-        log_message "Script interrupted and exited"
-    fi
-    exit 1
+    log_message "Installer exited (lock released)"
+}
+
+function _signal_exit {
+    print_error "\n\nScript interrupted. Cleaning up...\n"
+    log_message "Script interrupted by signal"
+    # Do NOT call exit here; the EXIT trap will handle lock cleanup.
+    # Use kill $$ to ensure EXIT trap runs without re-triggering signal trap.
+    kill -TERM $$ 2>/dev/null || exit 130
 }
 
 # Function to log messages
