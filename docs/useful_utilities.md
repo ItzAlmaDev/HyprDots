@@ -24,7 +24,7 @@ Customize the appearance and behavior of the status bar by modifying the followi
 It will use some default configuration, you can copy my configuration files:
 
 ```
-cp -r ~/simple-hyprland/configs/waybar ~/.config/
+cp -r ~/HyprDots/configs/waybar ~/.config/
 ```
 
 **Note:** 📝 Note: Remember to reload the bar to apply any configuration changes.
@@ -50,7 +50,7 @@ exec-once=waybar
 ##### Installation
 
 ```
-yay -S tofi
+pacman -S tofi
 ```
 
 ##### Configuration
@@ -61,7 +61,7 @@ Customize the appearance and behavior of the launcher by modifying the configura
 You can copy my pre-configured files:
 
 ```
-cp -r ~/simple-hyprland/configs/tofi ~/.config/
+cp -r ~/HyprDots/configs/tofi ~/.config/
 ```
 
 ##### Hypr
@@ -106,21 +106,21 @@ exec-once = wl-paste --type text --watch cliphist store
 exec-once = wl-paste --type image --watch cliphist store
 ```
 
-## Wallpaper: Swww 🖼️
-[Swww](https://github.com/LGFae/swww) allows you to set and manage your desktop background, enhancing the visual appeal of your workspace.
+## Wallpaper: Awww 🖼️
+[Awww](https://codeberg.org/LGFae/awww) allows you to set and manage your desktop background, enhancing the visual appeal of your workspace.
 
 ##### Installation
-To install `swww`, use the following command:
+To install `awww`, use the following command:
 
 ```
-yay -S swww
+yay -S awww
 ```
 
 ##### Configuration
 Copy sample wallpapers (creates the assets folder inside .config):
 
 ```
-cp -r ~/simple-hyprland/assets/backgrounds ~/.config/assets/backgrounds/
+cp -r ~/HyprDots/assets/backgrounds ~/.config/assets/backgrounds/
 ```
 
 No specific configuration is needed.
@@ -129,14 +129,14 @@ No specific configuration is needed.
 Initialize the wallpaper daemon and set a wallpaper on startup:
 
 ```
-exec-once = swww-daemon
-exec-once = swww img ~/.config/assets/backgrounds/cat_leaves.png  --transition-fps 255 --transition-type outer --transition-duration 0.8
+exec-once = awww-daemon
+exec-once = awww img ~/.config/assets/backgrounds/cat_leaves.png  --transition-fps 255 --transition-type outer --transition-duration 0.8
 ```
 
 You can also set the keybinding to change the wallpaper :
 
 ```
-bind = SUPER, N, exec, swww img ~/.config/assets/backgrounds/dark-cat-rosewater.png  --transition-fps 255 --transition-type outer --transition-duration 0.8 # Change wallpaper
+bind = SUPER, N, exec, awww img ~/.config/assets/backgrounds/dark-cat-rosewater.png  --transition-fps 255 --transition-type outer --transition-duration 0.8 # Change wallpaper
 ```
 
 ## Color Picker: Hyprpicker 🎨
@@ -168,7 +168,7 @@ A screen locker secures your computer when you are away, preventing unauthorized
 Install [hyprlock](https://github.com/hyprwm/hyprlock), which is designed to work well with Hyprland.
 
 ```
-yay -S hyprlock
+pacman -S hyprlock
 ```
 ##### Configuration
 Customize the screen locker by modifying the configuration file: `~/.config/hypr/hyprlock.conf`
@@ -176,7 +176,7 @@ Customize the screen locker by modifying the configuration file: `~/.config/hypr
 You can copy my configuration file:
 
 ```
-cp ~/simple-hyprland/configs/hypr/hyprlock.conf ~/.config/hypr/
+cp ~/HyprDots/configs/hypr/hyprlock.conf ~/.config/hypr/
 ```
 
 ##### Hypr
@@ -193,7 +193,7 @@ bind = SUPER, L, exec, hyprlock
 To install hypridle, use the following command:
 
 ```
-yay -S hypridle
+pacman -S hypridle
 ```
 
 ##### Configuration
@@ -202,7 +202,7 @@ Customize the idle manager behavior by modifying the configuration file: `~/.con
 You can copy my configuration file:
 
 ```
-cp ~/simple-hyprland/configs/hypr/hypridle.conf ~/.config/hypr/
+cp ~/HyprDots/configs/hypr/hypridle.conf ~/.config/hypr/
 ```
 
 ##### Hypr
@@ -223,7 +223,7 @@ exec-once = hypridle
 ##### Installation
 
 ```
-yay -S wlogout
+pacman -S wlogout
 ```
 
 ##### Configuration
@@ -234,8 +234,8 @@ Customize the appearance and behavior of the logout menu by modifying the follow
 It will use some default configuration, You can copy my pre-configured files:
 
 ```
-cp -r ~/simple-hyprland/configs/wlogout ~/.config/
-cp -r ~/simple-hyprland/assets/wlogout ~/.config/assets/ # copying assets
+cp -r ~/HyprDots/configs/wlogout ~/.config/
+cp -r ~/HyprDots/assets/wlogout ~/.config/assets/ # copying assets
 ```
 
 ##### Hypr
@@ -253,7 +253,7 @@ bind = SUPER, ESCAPE, exec, wlogout
 ##### Installation
 
 ```
-yay -S grimblast
+yay -S grimblast-git
 ```
 
 ##### Configuration
