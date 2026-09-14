@@ -376,6 +376,32 @@ function get_packages_from_section {
     done < "$pkg_file"
 }
 
+# Robust config deployment: copies all files including hidden ones
+# Usage: deploy_config "$source_dir" "$target_dir"
+function deploy_config {
+    local src="$1"
+    local dst="$2"
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        print_info "[DRY RUN] Would deploy: $src -> $dst"
+        return 0
+    fi
+    mkdir -p "$dst"
+    if [[ -d "$src" ]]; then
+        # Use find + cp to handle hidden files correctly
+        find "$src" -maxdepth 1 -mindepth 1 -print0 | while IFS= read -r -d '' item; do
+            local name
+            name="$(basename "$item")"
+            if [[ -d "$item" ]]; then
+                cp -a "$item" "$dst/$name"
+            else
+                cp -a "$item" "$dst/$name"
+            fi
+        done
+    elif [[ -f "$src" ]]; then
+        cp -a "$src" "$dst/"
+    fi
+}
+
 function check_os {
     if [ -f /etc/os-release ]; then
         . /etc/os-release

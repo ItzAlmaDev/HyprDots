@@ -17,7 +17,7 @@ refresh_sudo
 
 run_command "pacman -S --noconfirm --needed hyprland" "Install Hyprland (Must)" "yes"
 run_command "mkdir -p \"$HOME/.config/hypr\"" "Create Hyprland config directory" "no" "no"
-run_command "cp -r \"$BASE_DIR/configs/hypr/hyprland.conf\" \"$HOME/.config/hypr/\"" "Copy hyprland config (Must)" "yes" "no"
+run_command "cp -a \"$BASE_DIR/configs/hypr/hyprland.conf\" \"$HOME/.config/hypr/\"" "Copy hyprland config (Must)" "yes" "no"
 if [[ ! -f "$HOME/.config/hypr/hyprland.conf" ]]; then
     print_error "Failed to copy hyprland.conf"
     log_message "Failed to copy hyprland.conf"

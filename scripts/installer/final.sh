@@ -35,7 +35,7 @@ main() {
 
     print_info "Copying Hyprland config files..."
     run_command "mkdir -p \"$HOME/.config/hypr\"" "Create Hyprland config directory" "no" "no"
-    run_command "cp -r \"$BASE_DIR/configs/hypr/\"* \"$HOME/.config/hypr/\"" "Copy Hyprland config files" "no" "no"
+    deploy_config "$BASE_DIR/configs/hypr" "$HOME/.config/hypr"
 
     if [[ ! -f "$HOME/.config/hypr/hyprland.conf" ]]; then
         print_error "Failed to copy Hyprland config files"
@@ -48,10 +48,10 @@ main() {
 
     print_info "Deploying assets (wallpapers, icons)..."
     run_command "mkdir -p \"$HOME/.config/assets/backgrounds\"" "Create assets/backgrounds directory" "no" "no"
-    run_command "cp -r \"$BASE_DIR/assets/backgrounds/\"* \"$HOME/.config/assets/backgrounds/\"" "Copy wallpaper assets" "no" "no"
+    deploy_config "$BASE_DIR/assets/backgrounds" "$HOME/.config/assets/backgrounds"
 
     run_command "mkdir -p \"$HOME/.config/assets/wlogout/assets\"" "Create wlogout assets directory" "no" "no"
-    run_command "cp -r \"$BASE_DIR/assets/wlogout/assets/\"* \"$HOME/.config/assets/wlogout/assets/\"" "Copy wlogout icon assets" "no" "no"
+    deploy_config "$BASE_DIR/assets/wlogout/assets" "$HOME/.config/assets/wlogout/assets"
 
     record_owned_config_files "$BASE_DIR/assets" "$HOME/.config/assets"
 

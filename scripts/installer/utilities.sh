@@ -40,7 +40,7 @@ setup_waybar() {
 
     run_command "pacman -S --noconfirm --needed waybar" "Install Waybar (Recommended)" "yes"
     print_info "Copying waybar configs..."
-    run_command "cp -r \"$BASE_DIR/configs/waybar\" \"$HOME/.config/\"" "Copy waybar config files" "no" "no"
+    deploy_config "$BASE_DIR/configs/waybar" "$HOME/.config/waybar"
     if [[ ! -d "$HOME/.config/waybar" ]]; then
         print_error "Failed to copy waybar config"
         log_message "Failed to copy waybar config"
@@ -56,7 +56,7 @@ setup_tofi() {
 
     run_command "pacman -S --noconfirm --needed tofi" "Install Tofi (Recommended)" "yes"
     print_info "Copying tofi config files..."
-    run_command "cp -r \"$BASE_DIR/configs/tofi\" \"$HOME/.config/\"" "Copy tofi config files" "no" "no"
+    deploy_config "$BASE_DIR/configs/tofi" "$HOME/.config/tofi"
     if [[ ! -d "$HOME/.config/tofi" ]]; then
         print_error "Failed to copy tofi config"
         log_message "Failed to copy tofi config"
@@ -72,7 +72,7 @@ setup_kitty() {
 
     run_command "pacman -S --noconfirm --needed kitty" "Install Kitty (Recommended)" "yes"
     print_info "Copying kitty config files..."
-    run_command "cp -r \"$BASE_DIR/configs/kitty\" \"$HOME/.config/\"" "Copy kitty config files" "no" "no"
+    deploy_config "$BASE_DIR/configs/kitty" "$HOME/.config/kitty"
     if [[ ! -d "$HOME/.config/kitty" ]]; then
         print_error "Failed to copy kitty config"
         log_message "Failed to copy kitty config"
@@ -87,7 +87,7 @@ setup_dunst() {
     if ! backup_or_skip "dunst" "dunst"; then return; fi
 
     print_info "Copying dunst config files..."
-    run_command "cp -r \"$BASE_DIR/configs/dunst\" \"$HOME/.config/\"" "Copy dunst config files" "no" "no"
+    deploy_config "$BASE_DIR/configs/dunst" "$HOME/.config/dunst"
     if [[ ! -d "$HOME/.config/dunst" ]]; then
         print_error "Failed to copy dunst config"
         log_message "Failed to copy dunst config"
@@ -103,7 +103,7 @@ setup_wlogout() {
 
     run_command "pacman -S --noconfirm --needed wlogout" "Install Wlogout (Recommended)" "yes"
     print_info "Copying wlogout config files..."
-    run_command "cp -r \"$BASE_DIR/configs/wlogout\" \"$HOME/.config/\"" "Copy wlogout config files" "no" "no"
+    deploy_config "$BASE_DIR/configs/wlogout" "$HOME/.config/wlogout"
     if [[ ! -d "$HOME/.config/wlogout" ]]; then
         print_error "Failed to copy wlogout config"
         log_message "Failed to copy wlogout config"
