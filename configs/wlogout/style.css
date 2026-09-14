@@ -12,8 +12,9 @@ window {
 
 button {
     background-color: #11111b;
-    border-style: solid;
-    /* border-width: 2px; */
+    border: none;
+    outline: none;
+    box-shadow: none;
     border-radius: 50px;
     background-repeat: no-repeat;
     background-position: center;
@@ -76,13 +77,13 @@ button:focus {
 }
 
 #exit {
-    background-image: image(url("../assets/wlogout/assets/restart.png"), url("/usr/local/share/wlogout/icons/reboot.png"));
+    background-image: image(url("../assets/wlogout/assets/sleep.png"), url("/usr/local/share/wlogout/icons/suspend.png"));
     background-color: #11111b;
 
 }
 
 #exit:hover {
-    background-image: image(url("../assets/wlogout/assets/restart-hover.png"), url("/usr/local/share/wlogout/icons/reboot.png"));
+    background-image: image(url("../assets/wlogout/assets/sleep-hover.png"), url("/usr/local/share/wlogout/icons/suspend.png"));
     color: #11111b;
     background-color: #cdd6f4;
 }
