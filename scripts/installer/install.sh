@@ -151,32 +151,77 @@ echo ""
 
 validation_passed=true
 
-for cmd in hyprland waybar kitty dunst; do
-    if command -v "$cmd" &>/dev/null; then
-        print_success "  $cmd: installed"
-    else
-        print_warning "  $cmd: not found"
-        validation_passed=false
+validate_component() {
+    local name="$1"
+    local cmd="${2:-}"
+    local conf="${3:-}"
+    local required="${4:-no}"
+
+    local status=true
+    if [[ -n "$cmd" ]]; then
+        if command -v "$cmd" &>/dev/null; then
+            print_success "  $name ($cmd): installed"
+        else
+            if [[ "$required" == "yes" ]]; then
+                print_error "  $name ($cmd): MISSING (required)"
+                status=false
+            else
+                print_warning "  $name ($cmd): not found (optional)"
+            fi
+        fi
     fi
+    if [[ -n "$conf" ]]; then
+        if [[ -f "$conf" ]]; then
+            print_success "  $name config: present"
+        else
+            if [[ "$required" == "yes" ]]; then
+                print_error "  $name config: MISSING (required)"
+                status=false
+            else
+                print_warning "  $name config: not found"
+            fi
+        fi
+    fi
+    $status || validation_passed=false
+}
+
+for selection in $selections; do
+    case $selection in
+        0)
+            validate_component "Hyprland" "" "$HOME/.config/hypr/hyprland.conf" "yes"
+            validate_component "gpu.conf" "" "$HOME/.config/hypr/gpu.conf" "no"
+            ;;
+        1)
+            validate_component "Hyprland" "hyprland" "" "yes"
+            validate_component "dunst" "dunst" "" "no"
+            ;;
+        2)
+            validate_component "GPU drivers" "" "" "no"
+            ;;
+        3)
+            validate_component "waybar" "waybar" "$HOME/.config/waybar/config.jsonc" "no"
+            validate_component "kitty" "kitty" "$HOME/.config/kitty/kitty.conf" "no"
+            validate_component "tofi" "tofi" "$HOME/.config/tofi/config" "no"
+            validate_component "wlogout" "wlogout" "" "no"
+            validate_component "hyprlock" "hyprlock" "" "no"
+            validate_component "hypridle" "hypridle" "" "no"
+            ;;
+        4)
+            validate_component "nwg-look" "nwg-look" "" "no"
+            validate_component "kvantum" "kvantummanager" "" "no"
+            ;;
+        5)
+            validate_component "browser" "${BROWSER_CMD%% *}" "" "no"
+            validate_component "obsidian" "obsidian" "" "no"
+            validate_component "vscode" "code" "" "no"
+            ;;
+    esac
 done
-
-if [ -f "$HOME/.config/hypr/hyprland.conf" ]; then
-    print_success "  hyprland.conf: present"
-else
-    print_warning "  hyprland.conf: missing"
-    validation_passed=false
-fi
-
-if [ -f "$HOME/.config/waybar/config.jsonc" ]; then
-    print_success "  waybar config: present"
-else
-    print_warning "  waybar config: missing (not installed or skipped)"
-fi
 
 if $validation_passed; then
     print_success "\nAll critical components validated successfully."
 else
-    print_warning "\nSome components missing. Check warnings above."
+    print_warning "\nSome required components missing. Check errors above."
 fi
 
 echo ""
