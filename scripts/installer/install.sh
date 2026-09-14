@@ -36,6 +36,8 @@ if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
     exit 0
 fi
 
+init_package_state
+
 echo ""
 print_info "=== HyprDots Interactive Installer ==="
 echo ""

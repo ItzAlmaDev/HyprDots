@@ -53,6 +53,65 @@ function log_message {
     echo "$(date): $1" >> "$LOG_FILE"
 }
 
+# State directory for tracking package ownership and installation state
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/hyprdots"
+PRE_EXISTING_PKGS_FILE="$STATE_DIR/pre_existing_packages.txt"
+OWNED_PKGS_FILE="$STATE_DIR/owned_packages.txt"
+
+function init_package_state {
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        return 0
+    fi
+    mkdir -p "$STATE_DIR"
+    if [[ ! -f "$PRE_EXISTING_PKGS_FILE" ]]; then
+        pacman -Qq 2>/dev/null > "$PRE_EXISTING_PKGS_FILE" || touch "$PRE_EXISTING_PKGS_FILE"
+        log_message "Snapshotted pre-existing packages to $PRE_EXISTING_PKGS_FILE"
+    fi
+    touch "$OWNED_PKGS_FILE"
+}
+
+function record_owned_package {
+    local pkg="$1"
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        return 0
+    fi
+    init_package_state
+    if grep -Fxq "$pkg" "$PRE_EXISTING_PKGS_FILE" 2>/dev/null; then
+        log_message "Package $pkg was pre-existing; not marking as HyprDots-owned"
+        return 0
+    fi
+    if ! grep -Fxq "$pkg" "$OWNED_PKGS_FILE" 2>/dev/null; then
+        echo "$pkg" >> "$OWNED_PKGS_FILE"
+        log_message "Tracked HyprDots-owned package: $pkg"
+    fi
+}
+
+function is_package_owned {
+    local pkg="$1"
+    if [[ ! -f "$OWNED_PKGS_FILE" ]]; then
+        return 1
+    fi
+    grep -Fxq "$pkg" "$OWNED_PKGS_FILE" 2>/dev/null
+}
+
+function track_installed_packages {
+    local cmd="$1"
+    if [[ "$cmd" =~ (pacman|yay)[[:space:]]+.*(-S|--sync) ]]; then
+        for token in $cmd; do
+            case "$token" in
+                sudo|pacman|yay|-*|--*|cd|"&&"|\|*|[0-9]*)
+                    continue
+                    ;;
+                *)
+                    if pacman -Qq "$token" 2>/dev/null | grep -Fxq "$token"; then
+                        record_owned_package "$token"
+                    fi
+                    ;;
+            esac
+        done
+    fi
+}
+
 # Functions for colored/bold output
 function print_error {
     echo -e "${RED}$1${NC}"
@@ -181,6 +240,7 @@ function run_command {
 
     print_success "$description completed successfully."
     log_message "$description completed successfully."
+    track_installed_packages "$cmd"
     return 0
 }
 

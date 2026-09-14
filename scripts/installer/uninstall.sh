@@ -47,37 +47,37 @@ main() {
     fi
 
     echo ""
-    print_info "=== Optional: Remove Installed Packages ==="
-    echo ""
-    print_warning "The following packages may have been installed by HyprDots:"
-    echo "  - waybar, tofi, kitty, wlogout, dunst"
-    echo "  - hyprlock, hypridle, grimblast-git, awww, hyprpicker"
-    echo "  - cliphist, wl-clipboard, nautilus"
-    echo "  - nwg-look, kvantum, kvantum-theme-catppuccin"
-    echo "  - pipewire, wireplumber, pamixer, brightnessctl, playerctl"
-    echo "  - sddm, polkit-kde-agent, xdg-desktop-portal-hyprland"
+    print_info "=== Package Removal ==="
     echo ""
 
-    if ask_confirmation "Remove HyprDots-specific packages? (keeps base system)"; then
-        print_info "Removing packages..."
-
-        local aur_packages=("grimblast-git" "awww" "hyprpicker" "kvantum-theme-catppuccin")
-        for pkg in "${aur_packages[@]}"; do
-            if command -v yay &>/dev/null && yay -Qi "$pkg" &>/dev/null 2>&1; then
-                run_command "yay -R --noconfirm $pkg" "Remove $pkg" "no" "no"
-            fi
-        done
-
-        local pacman_packages=("waybar" "tofi" "wlogout" "hyprlock" "hypridle"
-                               "cliphist" "wl-clipboard" "nautilus"
-                               "nwg-look" "kvantum")
-        for pkg in "${pacman_packages[@]}"; do
-            if pacman -Qi "$pkg" &>/dev/null 2>&1; then
-                run_command "pacman -R --noconfirm $pkg" "Remove $pkg" "no" "no"
-            fi
-        done
+    if [[ ! -f "$OWNED_PKGS_FILE" ]] || [[ ! -s "$OWNED_PKGS_FILE" ]]; then
+        print_warning "No HyprDots package ownership records found at $OWNED_PKGS_FILE."
+        print_warning "Skipping package removal to protect pre-existing system packages."
     else
-        print_info "Skipping package removal."
+        mapfile -t candidates < "$OWNED_PKGS_FILE"
+        local owned_installed=()
+        for pkg in "${candidates[@]}"; do
+            if pacman -Qq "$pkg" &>/dev/null; then
+                owned_installed+=("$pkg")
+            fi
+        done
+
+        if [ ${#owned_installed[@]} -eq 0 ]; then
+            print_info "No HyprDots-owned packages are currently installed."
+        else
+            print_info "The following packages were installed by HyprDots and are eligible for removal:"
+            for pkg in "${owned_installed[@]}"; do
+                echo "  - $pkg"
+            done
+            echo ""
+            if ask_confirmation "Remove these HyprDots-installed packages?"; then
+                for pkg in "${owned_installed[@]}"; do
+                    run_command "pacman -R --noconfirm $pkg" "Remove $pkg" "no" "no"
+                done
+            else
+                print_info "Skipping package removal."
+            fi
+        fi
     fi
 
     echo ""
