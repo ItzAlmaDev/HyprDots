@@ -47,6 +47,14 @@ main() {
 }
 
 apply_adwaita() {
+    for conf_dir in "gtk-3.0" "gtk-4.0" "Kvantum"; do
+        if [ -d "$HOME/.config/$conf_dir" ]; then
+            local backup_name="${conf_dir}_backup_$(date +%Y%m%d_%H%M%S)_$$"
+            mv "$HOME/.config/$conf_dir" "$HOME/.config/$backup_name"
+            print_info "Backed up existing $conf_dir to $backup_name"
+        fi
+    done
+
     print_info "Applying Adwaita Dark GTK theme..."
     run_command "nwg-look -s Adwaita-dark" "Set GTK theme" "no" "no"
 
@@ -58,18 +66,13 @@ apply_adwaita() {
 }
 
 apply_catppuccin() {
-    if [ -d "$HOME/.config/Kvantum" ]; then
-        print_warning "Existing Kvantum directory found at $HOME/.config/Kvantum"
-        read -r -p "Do you want to back it up and continue? (y/n): " backup_choice
-        if [ "$backup_choice" = "y" ] || [ "$backup_choice" = "Y" ]; then
-            mv "$HOME/.config/Kvantum" "$HOME/.config/Kvantum_backup_$(date +%Y%m%d_%H%M%S)_$$"
-            print_info "Backed up existing Kvantum directory."
-        else
-            print_info "Skipping Kvantum theme setup."
-            echo "------------------------------------------------------------------------"
-            return
+    for conf_dir in "gtk-3.0" "gtk-4.0" "Kvantum"; do
+        if [ -d "$HOME/.config/$conf_dir" ]; then
+            local backup_name="${conf_dir}_backup_$(date +%Y%m%d_%H%M%S)_$$"
+            mv "$HOME/.config/$conf_dir" "$HOME/.config/$backup_name"
+            print_info "Backed up existing $conf_dir to $backup_name"
         fi
-    fi
+    done
 
     if [ ! -d "$HOME/.config/Kvantum" ]; then
         print_info "Installing Catppuccin Mocha Kvantum theme..."
