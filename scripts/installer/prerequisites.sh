@@ -26,7 +26,23 @@ fi
 
 run_command "pacman -S --noconfirm --needed pipewire wireplumber pamixer brightnessctl playerctl" "Configuring audio, brightness and media control (Recommended)" "yes"
 
-run_command "pacman -S --noconfirm --needed ttf-cascadia-code-nerd ttf-cascadia-mono-nerd ttf-fira-code ttf-fira-mono ttf-fira-sans ttf-firacode-nerd ttf-iosevka-nerd ttf-iosevkaterm-nerd ttf-jetbrains-mono-nerd ttf-jetbrains-mono ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-mono" "Installing Nerd Fonts and Symbols (Recommended)" "yes"
+echo ""
+print_info "Install Nerd Fonts? (required for icons to display correctly)"
+echo "1) Install all Nerd Fonts (recommended)"
+echo "2) Skip font installation"
+echo ""
+while true; do
+    read -r -p "Select [1/2]: " font_choice
+    case "$font_choice" in
+        1) break ;;
+        2) print_info "Skipping font installation."; break ;;
+        *) print_error "Invalid selection. Please enter 1 or 2." ;;
+    esac
+done
+
+if [ "$font_choice" = "1" ]; then
+    run_command "pacman -S --noconfirm --needed ttf-cascadia-code-nerd ttf-cascadia-mono-nerd ttf-fira-code ttf-fira-mono ttf-fira-sans ttf-firacode-nerd ttf-iosevka-nerd ttf-iosevkaterm-nerd ttf-jetbrains-mono-nerd ttf-jetbrains-mono ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-mono" "Installing Nerd Fonts and Symbols (Recommended)" "yes"
+fi
 
 run_command "pacman -S --noconfirm --needed sddm" "Install SDDM (Recommended)" "yes"
 run_command "systemctl enable sddm.service" "Enable SDDM (Recommended)" "yes"
