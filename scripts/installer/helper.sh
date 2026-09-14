@@ -136,6 +136,11 @@ function run_command {
     fi
 
     log_message "Attempting to run: $description"
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        print_info "[DRY RUN] Would run: $full_cmd"
+        log_message "[DRY RUN] Would run: $full_cmd"
+        return 0
+    fi
     print_info "\nCommand: $full_cmd"
     if [[ "$ask_confirm" == "yes" ]]; then
         if ! ask_confirmation "$description"; then
