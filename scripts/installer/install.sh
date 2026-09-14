@@ -37,16 +37,32 @@ echo "5) Extras (browsers, editors, emoji picker)"
 echo "a) Install ALL"
 echo "q) Quit"
 echo ""
-read -r -p "Select components (space-separated, e.g., 1 3 5): " selections
+while true; do
+    read -r -p "Select components (space-separated, e.g., 1 3 5): " selections
 
-if [ "$selections" = "q" ] || [ "$selections" = "Q" ]; then
-    print_info "Installation cancelled."
-    exit 0
-fi
+    if [ "$selections" = "q" ] || [ "$selections" = "Q" ]; then
+        print_info "Installation cancelled."
+        exit 0
+    fi
 
-if [ "$selections" = "a" ] || [ "$selections" = "A" ]; then
-    selections="0 1 2 3 4 5"
-fi
+    if [ "$selections" = "a" ] || [ "$selections" = "A" ]; then
+        selections="0 1 2 3 4 5"
+        break
+    fi
+
+    valid=true
+    for selection in $selections; do
+        case $selection in
+            0|1|2|3|4|5) ;;
+            *) valid=false; break ;;
+        esac
+    done
+
+    if $valid && [ -n "$selections" ]; then
+        break
+    fi
+    print_error "Invalid selection(s). Valid options: 0, 1, 2, 3, 4, 5, a, q"
+done
 
 install_failed=false
 
