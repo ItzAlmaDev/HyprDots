@@ -5,6 +5,11 @@ BASE_DIR=$(realpath "$SCRIPT_DIR/../../")
 
 source "$SCRIPT_DIR/helper.sh"
 
+if [ "$(id -u)" -eq 0 ]; then
+    print_error "This script should not be run as root. Please run as a regular user."
+    exit 1
+fi
+
 main() {
     log_message "Installation started for Final section"
     print_info "\nStarting Hyprland Config Setup..."
