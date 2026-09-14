@@ -46,6 +46,15 @@ main() {
 
     record_owned_config_files "$BASE_DIR/configs/hypr" "$HOME/.config/hypr"
 
+    print_info "Deploying assets (wallpapers, icons)..."
+    run_command "mkdir -p \"$HOME/.config/assets/backgrounds\"" "Create assets/backgrounds directory" "no" "no"
+    run_command "cp -r \"$BASE_DIR/assets/backgrounds/\"* \"$HOME/.config/assets/backgrounds/\"" "Copy wallpaper assets" "no" "no"
+
+    run_command "mkdir -p \"$HOME/.config/assets/wlogout/assets\"" "Create wlogout assets directory" "no" "no"
+    run_command "cp -r \"$BASE_DIR/assets/wlogout/assets/\"* \"$HOME/.config/assets/wlogout/assets/\"" "Copy wlogout icon assets" "no" "no"
+
+    record_owned_config_files "$BASE_DIR/assets" "$HOME/.config/assets"
+
     print_info "Hyprland setup complete!"
     echo "------------------------------------------------------------------------"
 }
