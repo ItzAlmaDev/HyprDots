@@ -1,4 +1,4 @@
-# Simple Hyprland 🌟
+# HyprDots Summary
 
 Congratulations on completing the Simple Hyprland Guide! You've successfully set up a minimal, efficient, and visually appealing Hyprland environment on your Arch Linux system. This README serves as a recap of your journey and a reference for future tweaks and enhancements.
 
@@ -11,7 +11,7 @@ Congratulations on completing the Simple Hyprland Guide! You've successfully set
    - Waybar (Status Bar)
    - Tofi (App Launcher)
    - Cliphist (Clipboard Manager)
-   - Swww (Wallpaper Manager)
+   - Awww (Wallpaper Manager)
    - Hyprpicker (Color Picker)
    - Hyprlock (Screen Locker)
    - Hypridle (Idle Manager)
@@ -32,7 +32,7 @@ Congratulations on completing the Simple Hyprland Guide! You've successfully set
 1. **Hyprland**: Modify `~/.config/hypr/hyprland.conf` for layout, keybindings, and animations.
 2. **Waybar**: Adjust modules and styling in the Waybar config files.
 3. **Themes**: Use `nwg-look` for GTK themes and `kvantummanager` for QT themes.
-4. **Wallpaper**: Change wallpaper using `swww img [path_to_image]`.
+4. **Wallpaper**: Change wallpaper using `awww img [path_to_image]`.
 5. **Keybindings**: Add or modify keybindings in the Hyprland config.
 
 ## Troubleshooting 🔍
@@ -42,13 +42,10 @@ Congratulations on completing the Simple Hyprland Guide! You've successfully set
 3. Verify configuration syntax for each component.
 4. Consult the [Hyprland Wiki](https://wiki.hyprland.org/) for detailed information.
 
-## Further Enhancements 🔮
-- A script to automate the whole process to save time.
-- Documentation for extra Setup required for NVIDIA card users.
+## Further Enhancements
 - Explore additional Wayland-compatible applications.
 - Fine-tune animations and window rules in Hyprland.
 - Create custom scripts for repeated tasks.
-- Adding cool derived minimal setups.
 
 ## Community and Support 🤝
 - [Hyprland GitHub](https://github.com/hyprwm/Hyprland)
