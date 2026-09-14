@@ -31,7 +31,7 @@ Place the themes in the system theme directory. For this guide, we'll install th
 Extract the theme from the repos assets to the following location to apply it system-wide:
 
 ```
-tar -xvf ~/simple-hyprland/assets/themes/Catppuccin-Mocha.tar.xz -C /usr/share/themes/
+sudo tar -xvf ~/HyprDots/assets/themes/Catppuccin-Mocha.tar.xz -C /usr/share/themes/
 ```
 
 #### Icon Theme
@@ -40,14 +40,14 @@ Place the icon theme in the system icon directory. We'll install the [Tela icon 
 Extract the theme from our assets to the following location to apply it system-wide:
 
 ```
-tar -xvf ~/simple-hyprland/assets/icons/Tela-circle-dracula.tar.xz -C /usr/share/icons/
+sudo tar -xvf ~/HyprDots/assets/icons/Tela-circle-dracula.tar.xz -C /usr/share/icons/
 ```
 
 #### Kvantum Theme
 For Arch-based systems, install the kvantum-theme-catppuccin from the AUR:
 
 ```
-yay -S kvantum-theme-catppuccin-git
+yay -S kvantum-theme-catppuccin
 ```
 
 ## Setting the Themes 🖼️
@@ -68,7 +68,7 @@ Copy the configuration files for the Catppuccin theme:
 2. `theme.conf` - Theme file
 
 ```
-cp -r ~/simple-hyprland/configs/kitty ~/.config/
+cp -r ~/HyprDots/configs/kitty ~/.config/
 ```
 #### 2. VS Code: The Code editor
 Install the Catppuccin theme extension from the Visual Studio Code Marketplace.
@@ -77,7 +77,7 @@ Install the Catppuccin theme extension from the Visual Studio Code Marketplace.
 Copy the configuration file i.e. `dunstrc`.
 
 ```
-cp -r ~/simple-hyprland/configs/dunst ~/.config/
+cp -r ~/HyprDots/configs/dunst ~/.config/
 ```
 
 ## Misc 🔧
@@ -89,7 +89,10 @@ We can achieve a blurred effect on windows by adding window rules in our hyprlan
 Example: To add blur to Kitty, add:
 
 ```
-windowrulev2 = opacity 0.90 0.90,class:^(kitty)$
+windowrule {
+    match:class = ^(kitty)$
+    opacity = 0.90 0.90
+}
 ```
 
 **Pro Tip:** 💡 To get the class_name for a specific window, use the command `hyprctl clients` while the window is open.
@@ -124,11 +127,6 @@ decoration {
     # Change transparency of focused and unfocused windows
     active_opacity = 1.0
     inactive_opacity = 1.0
-
-    drop_shadow = true
-    shadow_range = 4
-    shadow_render_power = 3
-    col.shadow = rgba(1a1a1aee)
 
     blur {
         enabled = true
