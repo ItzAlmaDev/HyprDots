@@ -1,26 +1,40 @@
 #!/bin/bash
 
-# Get the directory of the current script
-BASE_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")/../../")
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BASE_DIR=$(realpath "$SCRIPT_DIR/../../")
 
-# Source helper file
-source $BASE_DIR/scripts/installer/helper.sh
+source "$SCRIPT_DIR/helper.sh"
 
-log_message "Final setup script started"
-print_bold_blue "\nCongratulations! Your Simple Hyprland setup is complete!"
+main() {
+    log_message "Installation started for Final section"
+    print_info "\nStarting Hyprland Config Setup..."
 
-print_bold_blue "\nRepository Information:"
-echo "   - GitHub Repository: https://github.com/gaurav23b/simple-hyprland"
-echo "   - If you found this repo helpful, please consider giving it a star on GitHub!"
+    if [ -d "$HOME/.config/hypr" ]; then
+        print_warning "Existing Hyprland directory found at $HOME/.config/hypr"
+        read -r -p "Do you want to back it up and continue? (y/n): " backup_choice
+        if [ "$backup_choice" = "y" ] || [ "$backup_choice" = "Y" ]; then
+            mv "$HOME/.config/hypr" "$HOME/.config/hypr_backup_$(date +%Y%m%d_%H%M%S)_$$"
+            print_info "Backed up existing Hyprland directory."
+        else
+            print_info "Skipping Hyprland setup."
+            echo "------------------------------------------------------------------------"
+            return
+        fi
+    fi
 
-print_bold_blue "\nContribute:"
-echo "   - Feel free to open issues, submit pull requests, or provide feedback."
-echo "   - Every contribution, big or small, is valuable to the community."
+    print_info "Copying Hyprland config files..."
+    run_command "mkdir -p $HOME/.config/hypr" "Create Hyprland config directory" "no" "no"
+    run_command "cp -r $BASE_DIR/configs/hypr/* $HOME/.config/hypr/" "Copy Hyprland config files" "no" "no"
 
-print_bold_blue "\nTroubleshooting:"
-echo "   - If you encounter any issues, please check the GitHub issues section."
-echo "   - Don't hesitate to open a new issue if you can't find a solution to your problem."
+    if [[ ! -f "$HOME/.config/hypr/hyprland.conf" ]]; then
+        print_error "Failed to copy Hyprland config files"
+        log_message "Failed to copy Hyprland config files"
+        echo "------------------------------------------------------------------------"
+        return 1
+    fi
 
-print_success "\nEnjoy your new Hyprland environment!"
+    print_info "Hyprland setup complete!"
+    echo "------------------------------------------------------------------------"
+}
 
-echo "------------------------------------------------------------------------"
+main "$@"
