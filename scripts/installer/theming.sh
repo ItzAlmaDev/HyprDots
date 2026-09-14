@@ -60,14 +60,50 @@ apply_adwaita() {
         fi
     done
 
+    local theme_failed=false
+
     print_info "Applying Adwaita Dark GTK theme..."
-    run_command "nwg-look -s Adwaita-dark" "Set GTK theme" "no" "no"
+    if ! run_command "nwg-look -s Adwaita-dark" "Set GTK theme" "no" "no"; then
+        theme_failed=true
+    fi
 
     print_info "Applying Adwaita icon theme..."
-    run_command "nwg-look -i Adwaita" "Set icon theme" "no" "no"
+    if ! run_command "nwg-look -i Adwaita" "Set icon theme" "no" "no"; then
+        theme_failed=true
+    fi
 
     print_info "Applying Adwaita color scheme..."
-    run_command "nwg-look -c Prefer-dark" "Set color scheme" "no" "no"
+    if ! run_command "nwg-look -c Prefer-dark" "Set color scheme" "no" "no"; then
+        theme_failed=true
+    fi
+
+    if $theme_failed; then
+        print_warning "Theme application had errors. Restoring backups..."
+        rollback_theme_backups
+        return 1
+    fi
+}
+
+rollback_theme_backups() {
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        print_info "[DRY RUN] Would restore theme backups"
+        return 0
+    fi
+    if [[ ! -f "$BACKUPS_MANIFEST" ]] || [[ ! -s "$BACKUPS_MANIFEST" ]]; then
+        print_warning "No backup manifest found; cannot auto-restore."
+        return 1
+    fi
+    while IFS='|' read -r original backup timestamp; do
+        case "$original" in
+            *gtk-3.0|*gtk-4.0|*Kvantum)
+                if [[ -d "$backup" ]]; then
+                    rm -rf "$original"
+                    cp -r "$backup" "$original"
+                    print_info "Restored: $original from $backup"
+                fi
+                ;;
+        esac
+    done < "$BACKUPS_MANIFEST"
 }
 
 apply_catppuccin() {
@@ -84,27 +120,47 @@ apply_catppuccin() {
         fi
     done
 
+    local theme_failed=false
+
     if [ ! -d "$HOME/.config/Kvantum" ]; then
         print_info "Installing Catppuccin Mocha Kvantum theme..."
-        run_command "yay -S --sudoloop --noconfirm --needed kvantum-theme-catppuccin-git" "Install Catppuccin Kvantum theme" "yes" "no"
+        if ! run_command "yay -S --sudoloop --noconfirm --needed kvantum-theme-catppuccin-git" "Install Catppuccin Kvantum theme" "yes" "no"; then
+            theme_failed=true
+        fi
     fi
 
     if ! command -v kvantummanager > /dev/null 2>&1; then
         print_warning "kvantummanager not found. Installing kvantum..."
-        run_command "pacman -S --noconfirm --needed kvantum" "Install Kvantum theme engine" "yes"
+        if ! run_command "pacman -S --noconfirm --needed kvantum" "Install Kvantum theme engine" "yes"; then
+            theme_failed=true
+        fi
     fi
 
     print_info "Applying Catppuccin Mocha Kvantum theme..."
-    run_command "kvantummanager --set Catppuccin-Mocha" "Set Kvantum theme" "no" "no"
+    if ! run_command "kvantummanager --set Catppuccin-Mocha" "Set Kvantum theme" "no" "no"; then
+        theme_failed=true
+    fi
 
     print_info "Applying Catppuccin Mocha GTK theme..."
-    run_command "nwg-look -s Catppuccin-Mocha" "Set GTK theme" "no" "no"
+    if ! run_command "nwg-look -s Catppuccin-Mocha" "Set GTK theme" "no" "no"; then
+        theme_failed=true
+    fi
 
     print_info "Applying Tela Circle Dracula icon theme..."
-    run_command "nwg-look -i Tela-circle-dracula" "Set icon theme" "no" "no"
+    if ! run_command "nwg-look -i Tela-circle-dracula" "Set icon theme" "no" "no"; then
+        theme_failed=true
+    fi
 
     print_info "Applying Catppuccin Mocha color scheme..."
-    run_command "nwg-look -c Catppuccin-Mocha" "Set color scheme" "no" "no"
+    if ! run_command "nwg-look -c Catppuccin-Mocha" "Set color scheme" "no" "no"; then
+        theme_failed=true
+    fi
+
+    if $theme_failed; then
+        print_warning "Theme application had errors. Restoring backups..."
+        rollback_theme_backups
+        return 1
+    fi
 }
 
 main "$@"
