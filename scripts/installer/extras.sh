@@ -4,6 +4,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source "$SCRIPT_DIR/helper.sh"
 
+if [ "$(id -u)" -eq 0 ]; then
+    print_error "This script should not be run as root. Please run as a regular user."
+    exit 1
+fi
+
 log_message "Installation started for Extras section"
 print_info "\nStarting Extras installation..."
 
