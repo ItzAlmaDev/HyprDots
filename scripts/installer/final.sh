@@ -28,8 +28,8 @@ main() {
     fi
 
     print_info "Copying Hyprland config files..."
-    run_command "mkdir -p $HOME/.config/hypr" "Create Hyprland config directory" "no" "no"
-    run_command "cp -r $BASE_DIR/configs/hypr/* $HOME/.config/hypr/" "Copy Hyprland config files" "no" "no"
+    run_command "mkdir -p \"$HOME/.config/hypr\"" "Create Hyprland config directory" "no" "no"
+    run_command "cp -r \"$BASE_DIR/configs/hypr/\"* \"$HOME/.config/hypr/\"" "Copy Hyprland config files" "no" "no"
 
     if [[ ! -f "$HOME/.config/hypr/hyprland.conf" ]]; then
         print_error "Failed to copy Hyprland config files"
