@@ -114,7 +114,7 @@ main() {
             echo ""
             if ask_confirmation "Remove these HyprDots-installed packages?"; then
                 for pkg in "${owned_installed[@]}"; do
-                    run_command "pacman -R --noconfirm $pkg" "Remove $pkg" "no" "no"
+                    run_command "pacman -Rns --noconfirm $pkg" "Remove $pkg" "no" "no"
                 done
             else
                 print_info "Skipping package removal."

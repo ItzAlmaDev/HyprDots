@@ -21,10 +21,14 @@ run_command "pacman -Sy --noconfirm" "Sync package database" "yes"
 if command -v yay > /dev/null; then
     print_info "Skipping yay installation (already installed)."
 elif run_command "pacman -S --noconfirm --needed git base-devel" "Install YAY (Must)/Breaks the script" "yes"; then
-    if ! run_command "cd /tmp && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg --noconfirm -si" "Build YAY (Must)/Breaks the script" "no" "no"; then
+    # Clean up any previous failed yay build
+    rm -rf /tmp/yay 2>/dev/null || true
+    if ! run_command "cd /tmp && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si --noconfirm" "Build YAY (Must)/Breaks the script" "no" "no"; then
         print_error "Failed to build yay. This is required for AUR packages."
         exit 1
     fi
+    # Clean up build artifacts
+    rm -rf /tmp/yay 2>/dev/null || true
 else
     print_error "Failed to install git/base-devel. yay is required."
     exit 1
