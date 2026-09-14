@@ -64,6 +64,7 @@ function record_backup {
     local original="$1"
     local backup="$2"
     if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        print_info "[DRY RUN] Would record backup: $original -> $backup"
         return 0
     fi
     mkdir -p "$STATE_DIR"
@@ -75,6 +76,7 @@ function record_owned_config_files {
     local source_dir="$1"
     local target_dir="$2"
     if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        print_info "[DRY RUN] Would record owned configs from $source_dir -> $target_dir"
         return 0
     fi
     mkdir -p "$STATE_DIR"
@@ -99,6 +101,7 @@ function record_owned_config_files {
 
 function init_package_state {
     if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        print_info "[DRY RUN] Would initialize package state in $STATE_DIR"
         return 0
     fi
     mkdir -p "$STATE_DIR"
@@ -112,6 +115,7 @@ function init_package_state {
 function record_owned_package {
     local pkg="$1"
     if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        print_info "[DRY RUN] Would track package: $pkg"
         return 0
     fi
     init_package_state
@@ -135,6 +139,9 @@ function is_package_owned {
 
 function track_installed_packages {
     local cmd="$1"
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        return 0
+    fi
     if [[ "$cmd" =~ (pacman|yay)[[:space:]]+.*(-S|--sync) ]]; then
         for token in $cmd; do
             case "$token" in

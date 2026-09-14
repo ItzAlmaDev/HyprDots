@@ -19,7 +19,11 @@ main() {
         read -r -p "Do you want to back it up and continue? (y/n): " backup_choice
         if [ "$backup_choice" = "y" ] || [ "$backup_choice" = "Y" ]; then
             local backup_path="$HOME/.config/hypr_backup_$(date +%Y%m%d_%H%M%S)_$$"
-            mv "$HOME/.config/hypr" "$backup_path"
+            if [[ "${DRY_RUN:-false}" == "true" ]]; then
+                print_info "[DRY RUN] Would back up hypr to $backup_path"
+            else
+                mv "$HOME/.config/hypr" "$backup_path"
+            fi
             record_backup "$HOME/.config/hypr" "$backup_path"
             print_info "Backed up existing Hyprland directory."
         else

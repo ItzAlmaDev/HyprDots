@@ -50,7 +50,11 @@ apply_adwaita() {
     for conf_dir in "gtk-3.0" "gtk-4.0" "Kvantum"; do
         if [ -d "$HOME/.config/$conf_dir" ]; then
             local backup_name="${conf_dir}_backup_$(date +%Y%m%d_%H%M%S)_$$"
-            mv "$HOME/.config/$conf_dir" "$HOME/.config/$backup_name"
+            if [[ "${DRY_RUN:-false}" == "true" ]]; then
+                print_info "[DRY RUN] Would back up $conf_dir to $backup_name"
+            else
+                mv "$HOME/.config/$conf_dir" "$HOME/.config/$backup_name"
+            fi
             record_backup "$HOME/.config/$conf_dir" "$HOME/.config/$backup_name"
             print_info "Backed up existing $conf_dir to $backup_name"
         fi
@@ -70,7 +74,11 @@ apply_catppuccin() {
     for conf_dir in "gtk-3.0" "gtk-4.0" "Kvantum"; do
         if [ -d "$HOME/.config/$conf_dir" ]; then
             local backup_name="${conf_dir}_backup_$(date +%Y%m%d_%H%M%S)_$$"
-            mv "$HOME/.config/$conf_dir" "$HOME/.config/$backup_name"
+            if [[ "${DRY_RUN:-false}" == "true" ]]; then
+                print_info "[DRY RUN] Would back up $conf_dir to $backup_name"
+            else
+                mv "$HOME/.config/$conf_dir" "$HOME/.config/$backup_name"
+            fi
             record_backup "$HOME/.config/$conf_dir" "$HOME/.config/$backup_name"
             print_info "Backed up existing $conf_dir to $backup_name"
         fi

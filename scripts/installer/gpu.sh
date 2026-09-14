@@ -91,13 +91,17 @@ if $HAS_NVIDIA; then
 
     DEPLOYED_CONF="$HOME/.config/hypr/hyprland.conf"
     if [ -f "$DEPLOYED_CONF" ]; then
-        print_info "Uncommenting Nvidia env vars in deployed hyprland.conf..."
-        sed -i 's/^[# ]*env *= *LIBVA_DRIVER_NAME,nvidia$/env = LIBVA_DRIVER_NAME,nvidia/' "$DEPLOYED_CONF"
-        sed -i 's/^[# ]*env *= *GBM_BACKEND,nvidia-drm$/env = GBM_BACKEND,nvidia-drm/' "$DEPLOYED_CONF"
-        sed -i 's/^[# ]*env *= *__GLX_VENDOR_LIBRARY_NAME,nvidia$/env = __GLX_VENDOR_LIBRARY_NAME,nvidia/' "$DEPLOYED_CONF"
-        sed -i 's/^[# ]*env *= *NVD_BACKEND,direct$/env = NVD_BACKEND,direct/' "$DEPLOYED_CONF"
-        print_success "Nvidia env vars uncommented in $DEPLOYED_CONF"
-        log_message "Nvidia env vars uncommented in $DEPLOYED_CONF"
+        if [[ "${DRY_RUN:-false}" == "true" ]]; then
+            print_info "[DRY RUN] Would uncomment Nvidia env vars in $DEPLOYED_CONF"
+        else
+            print_info "Uncommenting Nvidia env vars in deployed hyprland.conf..."
+            sed -i 's/^[# ]*env *= *LIBVA_DRIVER_NAME,nvidia$/env = LIBVA_DRIVER_NAME,nvidia/' "$DEPLOYED_CONF"
+            sed -i 's/^[# ]*env *= *GBM_BACKEND,nvidia-drm$/env = GBM_BACKEND,nvidia-drm/' "$DEPLOYED_CONF"
+            sed -i 's/^[# ]*env *= *__GLX_VENDOR_LIBRARY_NAME,nvidia$/env = __GLX_VENDOR_LIBRARY_NAME,nvidia/' "$DEPLOYED_CONF"
+            sed -i 's/^[# ]*env *= *NVD_BACKEND,direct$/env = NVD_BACKEND,direct/' "$DEPLOYED_CONF"
+            print_success "Nvidia env vars uncommented in $DEPLOYED_CONF"
+            log_message "Nvidia env vars uncommented in $DEPLOYED_CONF"
+        fi
     else
         print_warning "Deployed hyprland.conf not found at $DEPLOYED_CONF"
         print_warning "Run option 0 first, then re-run this option to auto-configure Nvidia env vars."

@@ -18,7 +18,11 @@ backup_or_skip() {
         read -r -p "Do you want to back it up and continue? (y/n): " backup_choice
         if [ "$backup_choice" = "y" ] || [ "$backup_choice" = "Y" ]; then
             local backup_path="$HOME/.config/${dir}_backup_$(date +%Y%m%d_%H%M%S)_$$"
-            mv "$HOME/.config/$dir" "$backup_path"
+            if [[ "${DRY_RUN:-false}" == "true" ]]; then
+                print_info "[DRY RUN] Would back up $dir to $backup_path"
+            else
+                mv "$HOME/.config/$dir" "$backup_path"
+            fi
             record_backup "$HOME/.config/$dir" "$backup_path"
             print_info "Backed up existing $name directory."
         else

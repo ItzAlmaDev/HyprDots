@@ -35,9 +35,13 @@ main() {
         if ask_confirmation "Restore all configs from backups?"; then
             while IFS='|' read -r original backup timestamp; do
                 if [[ -d "$backup" ]]; then
-                    rm -rf "$original"
-                    cp -r "$backup" "$original"
-                    print_info "Restored: $original from $backup"
+                    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+                        print_info "[DRY RUN] Would restore: $original from $backup"
+                    else
+                        rm -rf "$original"
+                        cp -r "$backup" "$original"
+                        print_info "Restored: $original from $backup"
+                    fi
                 else
                     print_warning "Backup not found: $backup"
                 fi
@@ -53,8 +57,12 @@ main() {
         while IFS= read -r file; do
             if [[ -f "$file" ]] || [[ -L "$file" ]]; then
                 if ask_confirmation "Remove $file?"; then
-                    rm -f "$file"
-                    print_info "Removed: $file"
+                    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+                        print_info "[DRY RUN] Would remove: $file"
+                    else
+                        rm -f "$file"
+                        print_info "Removed: $file"
+                    fi
                     removed=$((removed + 1))
                 else
                     skipped=$((skipped + 1))
@@ -68,7 +76,11 @@ main() {
         for dir in "${config_dirs[@]}"; do
             local dir_path="$HOME/.config/$dir"
             if [[ -d "$dir_path" ]] && [[ -z "$(ls -A "$dir_path" 2>/dev/null)" ]]; then
-                rmdir "$dir_path" 2>/dev/null && print_info "Removed empty directory: $dir_path"
+                if [[ "${DRY_RUN:-false}" == "true" ]]; then
+                    print_info "[DRY RUN] Would remove empty directory: $dir_path"
+                else
+                    rmdir "$dir_path" 2>/dev/null && print_info "Removed empty directory: $dir_path"
+                fi
             fi
         done
     else

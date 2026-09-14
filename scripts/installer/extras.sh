@@ -59,11 +59,15 @@ install_browser() {
 
     DEPLOYED_CONF="$HOME/.config/hypr/hyprland.conf"
     if [ -f "$DEPLOYED_CONF" ]; then
-        local escaped_cmd
-        escaped_cmd=$(printf '%s\n' "$BROWSER_CMD" | sed 's/[&/\]/\\&/g')
-        sed -i "s|^\$browser = .*|\$browser = ${escaped_cmd}|" "$DEPLOYED_CONF"
-        print_success "Updated \$browser in $DEPLOYED_CONF to: $BROWSER_CMD"
-        log_message "Updated \$browser in $DEPLOYED_CONF to: $BROWSER_CMD"
+        if [[ "${DRY_RUN:-false}" == "true" ]]; then
+            print_info "[DRY RUN] Would set \$browser to $BROWSER_CMD in $DEPLOYED_CONF"
+        else
+            local escaped_cmd
+            escaped_cmd=$(printf '%s\n' "$BROWSER_CMD" | sed 's/[&/\]/\\&/g')
+            sed -i "s|^\$browser = .*|\$browser = ${escaped_cmd}|" "$DEPLOYED_CONF"
+            print_success "Updated \$browser in $DEPLOYED_CONF to: $BROWSER_CMD"
+            log_message "Updated \$browser in $DEPLOYED_CONF to: $BROWSER_CMD"
+        fi
     else
         print_warning "Deployed hyprland.conf not found at $DEPLOYED_CONF"
         print_warning "Run option 0 first, then re-run this option to set your browser."
