@@ -13,8 +13,8 @@ Define frequently used applications for rapid access:
 ```
 # Define primary applications
 $terminal = kitty
-$fileManager = dolphin
-$browser = brave-browser
+$fileManager = nautilus
+$browser = brave
 $editor = code
 ```
 
@@ -84,8 +84,7 @@ input {
 }
 
 gestures {
-    workspace_swipe = true
-    workspace_swipe_fingers = 3
+    gesture = 3, horizontal, workspace
 }
 ```
 
@@ -136,6 +135,6 @@ We will add more binds as we progress.
 
 For comprehensive keybinding documentation, refer to the [Hyprland Keybindings Wiki](https://wiki.hyprland.org/Configuring/Binds/).
 
-With your minimal Hyprland environment now operational, we're poised to elevate it from functional to phenomenal. In the following sections, we'll supercharge your setup with sleek status bars, lightning-fast application launchers, and dynamic wallpaper utilities. Brace yourself for a deep dive into advanced customization that will transform your desktop into a powerhouse of aesthetics and efficiency. The groundwork is laid; now it's time to unleash the full potential of your Hyprland environment. 🚀✨
+With your minimal Hyprland environment now operational, the following sections cover additional utilities, theming, and customization options.
 
 **Next:** [Useful Utilities](useful_utilities.md) 👉
