@@ -33,19 +33,7 @@ main() {
         done < "$BACKUPS_MANIFEST"
         echo ""
         if ask_confirmation "Restore all configs from backups?"; then
-            while IFS='|' read -r original backup timestamp; do
-                if [[ -d "$backup" ]]; then
-                    if [[ "${DRY_RUN:-false}" == "true" ]]; then
-                        print_info "[DRY RUN] Would restore: $original from $backup"
-                    else
-                        rm -rf "$original"
-                        cp -r "$backup" "$original"
-                        print_info "Restored: $original from $backup"
-                    fi
-                else
-                    print_warning "Backup not found: $backup"
-                fi
-            done < "$BACKUPS_MANIFEST"
+            restore_all_backups
         fi
     fi
 

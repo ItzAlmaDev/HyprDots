@@ -402,6 +402,67 @@ function deploy_config {
     fi
 }
 
+# Centralized backup: moves a path to a timestamped backup and records it
+# Usage: backup_config "$path" ["$description"]
+function backup_config {
+    local path="$1"
+    local desc="${2:-$path}"
+    if [[ ! -e "$path" ]]; then
+        return 0
+    fi
+    local backup_path="${path}_backup_$(date +%Y%m%d_%H%M%S)_$$"
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        print_info "[DRY RUN] Would back up $desc to $backup_path"
+        record_backup "$path" "$backup_path"
+        return 0
+    fi
+    mv "$path" "$backup_path"
+    record_backup "$path" "$backup_path"
+    print_info "Backed up $desc to $backup_path"
+}
+
+# Restore all backed-up configs from the manifest
+function restore_all_backups {
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        print_info "[DRY RUN] Would restore all configs from backups"
+        return 0
+    fi
+    if [[ ! -f "$BACKUPS_MANIFEST" ]] || [[ ! -s "$BACKUPS_MANIFEST" ]]; then
+        print_warning "No backup manifest found."
+        return 1
+    fi
+    local restored=0
+    while IFS='|' read -r original backup timestamp; do
+        if [[ -d "$backup" ]]; then
+            rm -rf "$original"
+            cp -r "$backup" "$original"
+            print_info "Restored: $original from $backup"
+            restored=$((restored + 1))
+        else
+            print_warning "Backup not found: $backup"
+        fi
+    done < "$BACKUPS_MANIFEST"
+    print_info "Restored $restored configs from backups."
+}
+
+# Backup with user confirmation (returns 1 if user declines)
+function backup_or_skip {
+    local dir="$1"
+    local name="$2"
+    if [ -d "$HOME/.config/$dir" ]; then
+        print_warning "Existing $name directory found at $HOME/.config/$dir"
+        read -r -p "Do you want to back it up and continue? (y/n): " backup_choice
+        if [ "$backup_choice" = "y" ] || [ "$backup_choice" = "Y" ]; then
+            backup_config "$HOME/.config/$dir" "$name"
+        else
+            print_info "Skipping $name setup."
+            echo "------------------------------------------------------------------------"
+            return 1
+        fi
+    fi
+    return 0
+}
+
 function check_os {
     if [ -f /etc/os-release ]; then
         . /etc/os-release

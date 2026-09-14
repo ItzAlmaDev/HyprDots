@@ -10,30 +10,6 @@ if [ "$(id -u)" -eq 0 ]; then
     exit 1
 fi
 
-backup_or_skip() {
-    local dir="$1"
-    local name="$2"
-    if [ -d "$HOME/.config/$dir" ]; then
-        print_warning "Existing $name directory found at $HOME/.config/$dir"
-        read -r -p "Do you want to back it up and continue? (y/n): " backup_choice
-        if [ "$backup_choice" = "y" ] || [ "$backup_choice" = "Y" ]; then
-            local backup_path="$HOME/.config/${dir}_backup_$(date +%Y%m%d_%H%M%S)_$$"
-            if [[ "${DRY_RUN:-false}" == "true" ]]; then
-                print_info "[DRY RUN] Would back up $dir to $backup_path"
-            else
-                mv "$HOME/.config/$dir" "$backup_path"
-            fi
-            record_backup "$HOME/.config/$dir" "$backup_path"
-            print_info "Backed up existing $name directory."
-        else
-            print_info "Skipping $name setup."
-            echo "------------------------------------------------------------------------"
-            return 1
-        fi
-    fi
-    return 0
-}
-
 setup_waybar() {
     print_info "Installing and configuring waybar..."
     if ! backup_or_skip "waybar" "waybar"; then return; fi

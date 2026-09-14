@@ -48,16 +48,7 @@ main() {
 
 apply_adwaita() {
     for conf_dir in "gtk-3.0" "gtk-4.0" "Kvantum"; do
-        if [ -d "$HOME/.config/$conf_dir" ]; then
-            local backup_name="${conf_dir}_backup_$(date +%Y%m%d_%H%M%S)_$$"
-            if [[ "${DRY_RUN:-false}" == "true" ]]; then
-                print_info "[DRY RUN] Would back up $conf_dir to $backup_name"
-            else
-                mv "$HOME/.config/$conf_dir" "$HOME/.config/$backup_name"
-            fi
-            record_backup "$HOME/.config/$conf_dir" "$HOME/.config/$backup_name"
-            print_info "Backed up existing $conf_dir to $backup_name"
-        fi
+        backup_config "$HOME/.config/$conf_dir" "$conf_dir"
     done
 
     local theme_failed=false
@@ -79,45 +70,24 @@ apply_adwaita() {
 
     if $theme_failed; then
         print_warning "Theme application had errors. Restoring backups..."
-        rollback_theme_backups
+        while IFS='|' read -r original backup timestamp; do
+            case "$original" in
+                *gtk-3.0|*gtk-4.0|*Kvantum)
+                    if [[ -d "$backup" ]]; then
+                        rm -rf "$original"
+                        cp -r "$backup" "$original"
+                        print_info "Restored: $original from $backup"
+                    fi
+                    ;;
+            esac
+        done < "$BACKUPS_MANIFEST"
         return 1
     fi
-}
-
-rollback_theme_backups() {
-    if [[ "${DRY_RUN:-false}" == "true" ]]; then
-        print_info "[DRY RUN] Would restore theme backups"
-        return 0
-    fi
-    if [[ ! -f "$BACKUPS_MANIFEST" ]] || [[ ! -s "$BACKUPS_MANIFEST" ]]; then
-        print_warning "No backup manifest found; cannot auto-restore."
-        return 1
-    fi
-    while IFS='|' read -r original backup timestamp; do
-        case "$original" in
-            *gtk-3.0|*gtk-4.0|*Kvantum)
-                if [[ -d "$backup" ]]; then
-                    rm -rf "$original"
-                    cp -r "$backup" "$original"
-                    print_info "Restored: $original from $backup"
-                fi
-                ;;
-        esac
-    done < "$BACKUPS_MANIFEST"
 }
 
 apply_catppuccin() {
     for conf_dir in "gtk-3.0" "gtk-4.0" "Kvantum"; do
-        if [ -d "$HOME/.config/$conf_dir" ]; then
-            local backup_name="${conf_dir}_backup_$(date +%Y%m%d_%H%M%S)_$$"
-            if [[ "${DRY_RUN:-false}" == "true" ]]; then
-                print_info "[DRY RUN] Would back up $conf_dir to $backup_name"
-            else
-                mv "$HOME/.config/$conf_dir" "$HOME/.config/$backup_name"
-            fi
-            record_backup "$HOME/.config/$conf_dir" "$HOME/.config/$backup_name"
-            print_info "Backed up existing $conf_dir to $backup_name"
-        fi
+        backup_config "$HOME/.config/$conf_dir" "$conf_dir"
     done
 
     local theme_failed=false
@@ -158,7 +128,17 @@ apply_catppuccin() {
 
     if $theme_failed; then
         print_warning "Theme application had errors. Restoring backups..."
-        rollback_theme_backups
+        while IFS='|' read -r original backup timestamp; do
+            case "$original" in
+                *gtk-3.0|*gtk-4.0|*Kvantum)
+                    if [[ -d "$backup" ]]; then
+                        rm -rf "$original"
+                        cp -r "$backup" "$original"
+                        print_info "Restored: $original from $backup"
+                    fi
+                    ;;
+            esac
+        done < "$BACKUPS_MANIFEST"
         return 1
     fi
 }
