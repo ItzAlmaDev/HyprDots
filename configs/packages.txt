@@ -1,0 +1,83 @@
+# HyprDots Package Lists
+# Edit this file to customize which packages are installed.
+# Lines starting with # are comments and are ignored.
+# Each section defines packages for a specific component.
+
+[core]
+# Base packages required for Hyprland
+hyprland
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+polkit-kde-agent
+dunst
+qt5-wayland
+qt6-wayland
+sddm
+kitty
+nano
+tar
+
+[audio]
+# Audio and media control packages
+pipewire
+wireplumber
+pamixer
+brightnessctl
+playerctl
+
+[fonts]
+# Nerd Fonts - comment out lines to skip specific fonts
+ttf-cascadia-code-nerd
+ttf-cascadia-mono-nerd
+ttf-fira-code
+ttf-fira-mono
+ttf-fira-sans
+ttf-firacode-nerd
+ttf-iosevka-nerd
+ttf-iosevkaterm-nerd
+ttf-jetbrains-mono-nerd
+ttf-jetbrains-mono
+ttf-nerd-fonts-symbols
+ttf-nerd-fonts-symbols-mono
+
+[utilities]
+# Desktop utilities
+waybar
+tofi
+wlogout
+hyprlock
+hypridle
+cliphist
+wl-clipboard
+nautilus
+
+[aur]
+# AUR packages (installed via yay)
+grimblast-git
+awww
+hyprpicker
+kvantum-theme-catppuccin
+
+[gpu-nvidia]
+# NVIDIA GPU drivers
+nvidia-dkms
+nvidia-utils
+lib32-nvidia-utils
+nvidia-settings
+
+[gpu-amd]
+# AMD GPU drivers
+mesa
+vulkan-radeon
+lib32-mesa
+lib32-vulkan-radeon
+libva-mesa-driver
+lib32-libva-mesa-driver
+
+[gpu-intel]
+# Intel GPU drivers
+mesa
+vulkan-intel
+lib32-mesa
+lib32-vulkan-intel
+intel-media-driver
