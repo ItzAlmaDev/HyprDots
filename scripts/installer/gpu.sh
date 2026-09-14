@@ -28,25 +28,61 @@ HAS_INTEL=false
 
 if echo "$GPU_INFO" | grep -qi "NVIDIA"; then
     HAS_NVIDIA=true
-    print_info "NVIDIA GPU detected."
+    print_info "NVIDIA GPU detected via lspci."
 fi
 
 if echo "$GPU_INFO" | grep -qiE "AMD|ATI"; then
     HAS_AMD=true
-    print_info "AMD GPU detected."
+    print_info "AMD GPU detected via lspci."
 fi
 
 if echo "$GPU_INFO" | grep -qi "Intel"; then
     HAS_INTEL=true
-    print_info "Intel GPU detected."
+    print_info "Intel GPU detected via lspci."
 fi
 
+# Fallback: Check DRM vendor IDs in sysfs if lspci detected nothing
 if ! $HAS_NVIDIA && ! $HAS_AMD && ! $HAS_INTEL; then
-    print_warning "No supported GPU detected (NVIDIA, AMD, or Intel)."
-    print_warning "Skipping driver installation."
-    log_message "No supported GPU detected. Skipping driver installation."
-    echo "------------------------------------------------------------------------"
-    exit 0
+    for vendor_file in /sys/class/drm/card*/device/vendor; do
+        if [ -f "$vendor_file" ]; then
+            vendor=$(cat "$vendor_file" 2>/dev/null || true)
+            case "$vendor" in
+                "0x10de") HAS_NVIDIA=true; print_info "NVIDIA GPU detected via sysfs." ;;
+                "0x1002") HAS_AMD=true; print_info "AMD GPU detected via sysfs." ;;
+                "0x8086") HAS_INTEL=true; print_info "Intel GPU detected via sysfs." ;;
+            esac
+        fi
+    done
+fi
+
+# Manual selection if auto-detection still found nothing
+if ! $HAS_NVIDIA && ! $HAS_AMD && ! $HAS_INTEL; then
+    print_warning "Auto-detection could not identify your GPU."
+    echo ""
+    echo "1) NVIDIA"
+    echo "2) AMD"
+    echo "3) Intel"
+    echo "4) Hybrid (Intel + NVIDIA)"
+    echo "5) Hybrid (AMD + NVIDIA)"
+    echo "s) Skip driver installation"
+    echo ""
+    while true; do
+        read -r -p "Select GPU drivers to install [1-5/s]: " gpu_choice
+        case "$gpu_choice" in
+            1) HAS_NVIDIA=true; break ;;
+            2) HAS_AMD=true; break ;;
+            3) HAS_INTEL=true; break ;;
+            4) HAS_INTEL=true; HAS_NVIDIA=true; break ;;
+            5) HAS_AMD=true; HAS_NVIDIA=true; break ;;
+            s|S)
+                print_info "Skipping GPU driver installation."
+                log_message "User skipped GPU driver installation."
+                echo "------------------------------------------------------------------------"
+                exit 0
+                ;;
+            *) print_error "Invalid choice. Please enter 1-5 or s." ;;
+        esac
+    done
 fi
 
 if $HAS_NVIDIA; then
