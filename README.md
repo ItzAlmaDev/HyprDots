@@ -112,10 +112,13 @@ q) Quit
 ```
 
 The installer supports:
-- GPU auto-detection (NVIDIA, AMD, Intel)
+- GPU auto-detection (NVIDIA, AMD, Intel) with manual selection fallback
 - Browser selection (Thorium, Brave, LibreWolf, Firefox)
 - Automatic config backup before overwriting
 - Modular selection — install only what you need
+- Dry-run mode (`bash install.sh --dry-run` or `-d`)
+- Package list configuration via `configs/packages.txt`
+- Clean uninstallation via `bash scripts/installer/uninstall.sh`
 
 ---
 
