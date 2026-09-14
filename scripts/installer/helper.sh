@@ -328,6 +328,33 @@ function run_command {
     run_command_array "$description" "$ask_confirm" "$use_sudo" "${cmd_array[@]}"
 }
 
+# Read packages from configs/packages.txt for a given section
+# Usage: get_packages_from_section "core" returns one package per line
+function get_packages_from_section {
+    local section="$1"
+    local pkg_file="${BASE_DIR:-$(realpath "$(dirname "${BASH_SOURCE[0]}")/../../")}/configs/packages.txt"
+    if [[ ! -f "$pkg_file" ]]; then
+        return 1
+    fi
+    local in_section=false
+    while IFS= read -r line; do
+        line="${line%%#*}"
+        line="$(echo "$line" | xargs)"
+        [[ -z "$line" ]] && continue
+        if [[ "$line" == "[$section]" ]]; then
+            in_section=true
+            continue
+        fi
+        if [[ "$line" == "["*"]" ]]; then
+            in_section=false
+            continue
+        fi
+        if $in_section; then
+            echo "$line"
+        fi
+    done < "$pkg_file"
+}
+
 function check_os {
     if [ -f /etc/os-release ]; then
         . /etc/os-release
