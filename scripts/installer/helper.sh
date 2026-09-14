@@ -106,10 +106,31 @@ function init_package_state {
     fi
     mkdir -p "$STATE_DIR"
     if [[ ! -f "$PRE_EXISTING_PKGS_FILE" ]]; then
-        pacman -Qq 2>/dev/null > "$PRE_EXISTING_PKGS_FILE" || touch "$PRE_EXISTING_PKGS_FILE"
+        echo "# HyprDots pre-existing packages snapshot" > "$PRE_EXISTING_PKGS_FILE"
+        echo "# Created: $(date -Iseconds 2>/dev/null || date)" >> "$PRE_EXISTING_PKGS_FILE"
+        pacman -Qq 2>/dev/null >> "$PRE_EXISTING_PKGS_FILE" || true
         log_message "Snapshotted pre-existing packages to $PRE_EXISTING_PKGS_FILE"
     fi
     touch "$OWNED_PKGS_FILE"
+    touch "$OWNED_CONFIGS_FILE"
+    touch "$BACKUPS_MANIFEST"
+}
+
+# Record which components were selected during installation
+function save_install_state {
+    local components="$1"
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        return 0
+    fi
+    mkdir -p "$STATE_DIR"
+    cat > "$STATE_DIR/install_state.txt" <<EOF
+# HyprDots Installation State
+# Last modified: $(date -Iseconds 2>/dev/null || date)
+version=1
+components=$components
+install_date=$(date -Iseconds 2>/dev/null || date)
+EOF
+    log_message "Saved install state: components=$components"
 }
 
 function record_owned_package {
@@ -119,7 +140,7 @@ function record_owned_package {
         return 0
     fi
     init_package_state
-    if grep -Fxq "$pkg" "$PRE_EXISTING_PKGS_FILE" 2>/dev/null; then
+    if grep -Fxq "$pkg" "$PRE_EXISTING_PKGS_FILE" 2>/dev/null || grep -q "^#.*$pkg" "$PRE_EXISTING_PKGS_FILE" 2>/dev/null; then
         log_message "Package $pkg was pre-existing; not marking as HyprDots-owned"
         return 0
     fi
