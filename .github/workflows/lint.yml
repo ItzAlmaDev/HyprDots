@@ -1,0 +1,47 @@
+name: Lint installer scripts
+
+on: [push, pull_request]
+
+jobs:
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax check
+        run: for f in scripts/installer/*.sh; do bash -n "$f"; done
+      - uses: ludeeus/action-shellcheck@2.0.0
+        with:
+          scandir: './scripts/installer'
+          severity: warning
+
+  validate-configs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JSON config files
+        run: |
+          echo "Validating waybar config..."
+          python3 -c "import json; json.load(open('configs/waybar/config.jsonc'))" || echo "::warning::waybar config.jsonc has JSON syntax issues (jsonc comments expected)"
+      - name: Validate wlogout layout
+        run: |
+          test -f configs/wlogout/layout || { echo "::error::wlogout layout missing"; exit 1; }
+          test -f configs/wlogout/style.css || { echo "::error::wlogout style.css missing"; exit 1; }
+      - name: Validate required config files exist
+        run: |
+          for f in \
+            configs/hypr/hyprland.conf \
+            configs/hypr/hyprlock.conf \
+            configs/hypr/hypridle.conf \
+            configs/waybar/config.jsonc \
+            configs/waybar/style.css \
+            configs/kitty/kitty.conf \
+            configs/kitty/theme.conf \
+            configs/dunst/dunstrc \
+            configs/tofi/configA \
+            configs/tofi/configV; do
+            if [ ! -f "$f" ]; then
+              echo "::error file=$f::Required config file missing"
+              exit 1
+            fi
+          done
+          echo "All required config files present."
