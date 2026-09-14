@@ -23,7 +23,13 @@ main() {
     echo "1) Catppuccin Mocha (purple/pink theme with Tela Circle Dracula icons)"
     echo "2) Adwaita Dark (Adwaita icons)"
     echo ""
-    read -r -p "Select theme [1/2]: " theme_choice
+    while true; do
+        read -r -p "Select theme [1/2]: " theme_choice
+        case "$theme_choice" in
+            1|2) break ;;
+            *) print_error "Invalid selection. Please enter 1 or 2." ;;
+        esac
+    done
 
     case "$theme_choice" in
         1)
