@@ -3,9 +3,20 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BASE_DIR=$(realpath "$SCRIPT_DIR/../../")
 
+DRY_RUN=false
+if [[ "${1:-}" == "-d" || "${1:-}" == "--dry-run" ]]; then
+    DRY_RUN=true
+fi
+export DRY_RUN
+
 source "$SCRIPT_DIR/helper.sh"
 
 log_message "Installation started"
+if [[ "$DRY_RUN" == "true" ]]; then
+    print_warning "\n=== DRY RUN MODE ==="
+    print_warning "No changes will be made to your system."
+    print_warning "Showing what would be installed.\n"
+fi
 print_info "\nWelcome to HyprDots Installer"
 
 if [ "$(id -u)" -eq 0 ]; then
@@ -128,6 +139,42 @@ if $install_failed; then
 else
     print_info "=== Installation Complete ==="
 fi
+
+echo ""
+print_info "=== Post-Install Validation ==="
+echo ""
+
+validation_passed=true
+
+for cmd in hyprland waybar kitty dunst; do
+    if command -v "$cmd" &>/dev/null; then
+        print_success "  $cmd: installed"
+    else
+        print_warning "  $cmd: not found"
+        validation_passed=false
+    fi
+done
+
+if [ -f "$HOME/.config/hypr/hyprland.conf" ]; then
+    print_success "  hyprland.conf: present"
+else
+    print_warning "  hyprland.conf: missing"
+    validation_passed=false
+fi
+
+if [ -f "$HOME/.config/waybar/config.jsonc" ]; then
+    print_success "  waybar config: present"
+else
+    print_warning "  waybar config: missing (not installed or skipped)"
+fi
+
+if $validation_passed; then
+    print_success "\nAll critical components validated successfully."
+else
+    print_warning "\nSome components missing. Check warnings above."
+fi
+
+echo ""
 print_info "Please log out and log back in to start Hyprland."
 print_info "Or run 'Hyprland' from a TTY to start manually."
 echo ""
