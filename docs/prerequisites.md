@@ -2,7 +2,7 @@
 This guide assumes understanding of Linux systems, particularly [Arch Linux](https://archlinux.org/). The following prerequisites are essential for the seamless installation and setup of Hyprland on your system.
 
 ## Base System 💻
-**Arch Linux:**  A minimal Arch Linux Installation is required. It's assumed that you're well-versed with the [Arch installation process]((https://wiki.archlinux.org/title/Installation_guide)) and have a functional base system ready for Hyprland integration.
+**Arch Linux:**  A minimal Arch Linux Installation is required. It's assumed that you're well-versed with the [Arch installation process](https://wiki.archlinux.org/title/Installation_guide) and have a functional base system ready for Hyprland integration.
 
 ## Toolbox Essentials 🧰
 1. **AUR Helper:** An [AUR helper](https://wiki.archlinux.org/title/AUR_helpers) s indispensable for efficient package management from the Arch User Repository. While the choice of helper is discretionary, I'm partial to [yay](https://aur.archlinux.org/packages/yay) for its efficiency and user-friendliness.
@@ -36,10 +36,10 @@ This guide assumes understanding of Linux systems, particularly [Arch Linux](htt
     systemctl enable sddm.service
     ```
 
-5. **Web Browser:** [Brave](https://brave.com/en-in/linux/) Brave will be used for accessing configuration resources and this guide. Install via:
+5. **Web Browser:** [Brave](https://brave.com/en-in/linux/) will be used for accessing configuration resources and this guide. Install via:
 
     ```
-    yay -S brave-bin
+    pacman -S brave
     ```
 
 6. **Terminal Emulator:** [Kitty](https://wiki.archlinux.org/title/Kitty) is the default terminal in the Hyprland configuration. If you prefer an alternative, be prepared to modify the config accordingly.
