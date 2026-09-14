@@ -1,7 +1,7 @@
 {
     "label" : "exit",
-    "action" : "",
-    "text" : "Exit",
+    "action" : "systemctl suspend",
+    "text" : "Sleep",
     "keybind" : "h"
 }
 {
@@ -13,7 +13,7 @@
 
 {
     "label" : "suspend",
-    "action" : "systemctl suspend-then-hibernate",
+    "action" : "systemctl suspend",
     "text" : "Suspend",
     "keybind" : "u"
 }
