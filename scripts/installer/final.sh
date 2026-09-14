@@ -18,7 +18,9 @@ main() {
         print_warning "Existing Hyprland directory found at $HOME/.config/hypr"
         read -r -p "Do you want to back it up and continue? (y/n): " backup_choice
         if [ "$backup_choice" = "y" ] || [ "$backup_choice" = "Y" ]; then
-            mv "$HOME/.config/hypr" "$HOME/.config/hypr_backup_$(date +%Y%m%d_%H%M%S)_$$"
+            local backup_path="$HOME/.config/hypr_backup_$(date +%Y%m%d_%H%M%S)_$$"
+            mv "$HOME/.config/hypr" "$backup_path"
+            record_backup "$HOME/.config/hypr" "$backup_path"
             print_info "Backed up existing Hyprland directory."
         else
             print_info "Skipping Hyprland setup."
@@ -37,6 +39,8 @@ main() {
         echo "------------------------------------------------------------------------"
         return 1
     fi
+
+    record_owned_config_files "$BASE_DIR/configs/hypr" "$HOME/.config/hypr"
 
     print_info "Hyprland setup complete!"
     echo "------------------------------------------------------------------------"

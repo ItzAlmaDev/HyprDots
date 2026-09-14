@@ -57,6 +57,45 @@ function log_message {
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/hyprdots"
 PRE_EXISTING_PKGS_FILE="$STATE_DIR/pre_existing_packages.txt"
 OWNED_PKGS_FILE="$STATE_DIR/owned_packages.txt"
+OWNED_CONFIGS_FILE="$STATE_DIR/owned_configs.txt"
+BACKUPS_MANIFEST="$STATE_DIR/backups.txt"
+
+function record_backup {
+    local original="$1"
+    local backup="$2"
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        return 0
+    fi
+    mkdir -p "$STATE_DIR"
+    echo "$original|$backup|$(date -Iseconds 2>/dev/null || date)" >> "$BACKUPS_MANIFEST"
+    log_message "Recorded backup: $original -> $backup"
+}
+
+function record_owned_config_files {
+    local source_dir="$1"
+    local target_dir="$2"
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
+        return 0
+    fi
+    mkdir -p "$STATE_DIR"
+    touch "$OWNED_CONFIGS_FILE"
+    if [[ -d "$source_dir" ]]; then
+        find "$source_dir" -type f | while read -r src_file; do
+            local rel_path="${src_file#$source_dir/}"
+            local dest_file="$target_dir/$rel_path"
+            if ! grep -Fxq "$dest_file" "$OWNED_CONFIGS_FILE" 2>/dev/null; then
+                echo "$dest_file" >> "$OWNED_CONFIGS_FILE"
+                log_message "Recorded owned config file: $dest_file"
+            fi
+        done
+    elif [[ -f "$source_dir" ]]; then
+        local dest_file="$target_dir"
+        if ! grep -Fxq "$dest_file" "$OWNED_CONFIGS_FILE" 2>/dev/null; then
+            echo "$dest_file" >> "$OWNED_CONFIGS_FILE"
+            log_message "Recorded owned config file: $dest_file"
+        fi
+    fi
+}
 
 function init_package_state {
     if [[ "${DRY_RUN:-false}" == "true" ]]; then

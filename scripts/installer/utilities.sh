@@ -17,7 +17,9 @@ backup_or_skip() {
         print_warning "Existing $name directory found at $HOME/.config/$dir"
         read -r -p "Do you want to back it up and continue? (y/n): " backup_choice
         if [ "$backup_choice" = "y" ] || [ "$backup_choice" = "Y" ]; then
-            mv "$HOME/.config/$dir" "$HOME/.config/${dir}_backup_$(date +%Y%m%d_%H%M%S)_$$"
+            local backup_path="$HOME/.config/${dir}_backup_$(date +%Y%m%d_%H%M%S)_$$"
+            mv "$HOME/.config/$dir" "$backup_path"
+            record_backup "$HOME/.config/$dir" "$backup_path"
             print_info "Backed up existing $name directory."
         else
             print_info "Skipping $name setup."
@@ -38,6 +40,8 @@ setup_waybar() {
     if [[ ! -d "$HOME/.config/waybar" ]]; then
         print_error "Failed to copy waybar config"
         log_message "Failed to copy waybar config"
+    else
+        record_owned_config_files "$BASE_DIR/configs/waybar" "$HOME/.config/waybar"
     fi
 }
 
@@ -51,6 +55,8 @@ setup_tofi() {
     if [[ ! -d "$HOME/.config/tofi" ]]; then
         print_error "Failed to copy tofi config"
         log_message "Failed to copy tofi config"
+    else
+        record_owned_config_files "$BASE_DIR/configs/tofi" "$HOME/.config/tofi"
     fi
 }
 
@@ -64,6 +70,8 @@ setup_kitty() {
     if [[ ! -d "$HOME/.config/kitty" ]]; then
         print_error "Failed to copy kitty config"
         log_message "Failed to copy kitty config"
+    else
+        record_owned_config_files "$BASE_DIR/configs/kitty" "$HOME/.config/kitty"
     fi
 }
 
@@ -76,6 +84,8 @@ setup_dunst() {
     if [[ ! -d "$HOME/.config/dunst" ]]; then
         print_error "Failed to copy dunst config"
         log_message "Failed to copy dunst config"
+    else
+        record_owned_config_files "$BASE_DIR/configs/dunst" "$HOME/.config/dunst"
     fi
 }
 
@@ -89,6 +99,8 @@ setup_wlogout() {
     if [[ ! -d "$HOME/.config/wlogout" ]]; then
         print_error "Failed to copy wlogout config"
         log_message "Failed to copy wlogout config"
+    else
+        record_owned_config_files "$BASE_DIR/configs/wlogout" "$HOME/.config/wlogout"
     fi
 }
 

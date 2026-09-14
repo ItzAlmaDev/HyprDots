@@ -26,24 +26,54 @@ main() {
     print_info "=== Configuration Cleanup ==="
     echo ""
 
-    local config_dirs=("waybar" "tofi" "kitty" "dunst" "wlogout")
+    if [[ -f "$BACKUPS_MANIFEST" ]] && [[ -s "$BACKUPS_MANIFEST" ]]; then
+        print_info "Available backups:"
+        while IFS='|' read -r original backup timestamp; do
+            echo "  $original <- $backup ($timestamp)"
+        done < "$BACKUPS_MANIFEST"
+        echo ""
+        if ask_confirmation "Restore all configs from backups?"; then
+            while IFS='|' read -r original backup timestamp; do
+                if [[ -d "$backup" ]]; then
+                    rm -rf "$original"
+                    cp -r "$backup" "$original"
+                    print_info "Restored: $original from $backup"
+                else
+                    print_warning "Backup not found: $backup"
+                fi
+            done < "$BACKUPS_MANIFEST"
+        fi
+    fi
 
-    for dir in "${config_dirs[@]}"; do
-        if [ -d "$HOME/.config/$dir" ]; then
-            if ls "$HOME/.config/${dir}_backup_"* &>/dev/null 2>&1; then
-                print_info "Found $dir config (with backups available)"
-            else
-                print_info "Found $dir config (no backups)"
+    echo ""
+    if [[ -f "$OWNED_CONFIGS_FILE" ]] && [[ -s "$OWNED_CONFIGS_FILE" ]]; then
+        print_info "Removing HyprDots-owned config files..."
+        local removed=0
+        local skipped=0
+        while IFS= read -r file; do
+            if [[ -f "$file" ]] || [[ -L "$file" ]]; then
+                if ask_confirmation "Remove $file?"; then
+                    rm -f "$file"
+                    print_info "Removed: $file"
+                    removed=$((removed + 1))
+                else
+                    skipped=$((skipped + 1))
+                fi
             fi
-        fi
-    done
+        done < "$OWNED_CONFIGS_FILE"
+        print_info "Removed $removed files, skipped $skipped files."
 
-    if [ -d "$HOME/.config/hypr" ]; then
-        if ls "$HOME/.config/hypr_backup_"* &>/dev/null 2>&1; then
-            print_info "Found hypr config (with backups available)"
-        else
-            print_info "Found hypr config (no backups)"
-        fi
+        print_info "Cleaning up empty directories..."
+        local config_dirs=("waybar" "tofi" "kitty" "dunst" "wlogout" "hypr")
+        for dir in "${config_dirs[@]}"; do
+            local dir_path="$HOME/.config/$dir"
+            if [[ -d "$dir_path" ]] && [[ -z "$(ls -A "$dir_path" 2>/dev/null)" ]]; then
+                rmdir "$dir_path" 2>/dev/null && print_info "Removed empty directory: $dir_path"
+            fi
+        done
+    else
+        print_warning "No HyprDots config ownership records found."
+        print_warning "Skipping config removal to protect non-HyprDots files."
     fi
 
     echo ""
@@ -83,14 +113,12 @@ main() {
     echo ""
     print_info "=== Backup Locations ==="
     echo ""
-    print_info "Backups are stored in ~/.config/ with _backup_ suffix."
-    echo "  Example: ~/.config/waybar_backup_20260913_123456_12345"
-    echo ""
-    print_info "To restore a backup:"
-    echo "  cp -r ~/.config/<name>_backup_<timestamp> ~/.config/<name>"
-    echo ""
-    print_info "To list all backups:"
-    echo "  ls -d ~/.config/*_backup_*"
+    if [[ -f "$BACKUPS_MANIFEST" ]] && [[ -s "$BACKUPS_MANIFEST" ]]; then
+        print_info "Backups are recorded in $BACKUPS_MANIFEST"
+    else
+        print_info "Backups are stored in ~/.config/ with _backup_ suffix."
+        echo "  Example: ~/.config/waybar_backup_20260913_123456_12345"
+    fi
     echo ""
 
     log_message "Uninstall completed"

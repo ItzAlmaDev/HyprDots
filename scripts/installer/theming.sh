@@ -51,6 +51,7 @@ apply_adwaita() {
         if [ -d "$HOME/.config/$conf_dir" ]; then
             local backup_name="${conf_dir}_backup_$(date +%Y%m%d_%H%M%S)_$$"
             mv "$HOME/.config/$conf_dir" "$HOME/.config/$backup_name"
+            record_backup "$HOME/.config/$conf_dir" "$HOME/.config/$backup_name"
             print_info "Backed up existing $conf_dir to $backup_name"
         fi
     done
@@ -70,6 +71,7 @@ apply_catppuccin() {
         if [ -d "$HOME/.config/$conf_dir" ]; then
             local backup_name="${conf_dir}_backup_$(date +%Y%m%d_%H%M%S)_$$"
             mv "$HOME/.config/$conf_dir" "$HOME/.config/$backup_name"
+            record_backup "$HOME/.config/$conf_dir" "$HOME/.config/$backup_name"
             print_info "Backed up existing $conf_dir to $backup_name"
         fi
     done
