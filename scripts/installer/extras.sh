@@ -21,7 +21,13 @@ echo "3) LibreWolf"
 echo "4) Firefox"
 echo "s) Skip browser"
 echo ""
-read -r -p "Select browser [1-4/s]: " browser_choice
+while true; do
+    read -r -p "Select browser [1-4/s]: " browser_choice
+    case "$browser_choice" in
+        1|2|3|4|s|S) break ;;
+        *) print_error "Invalid selection. Please enter 1, 2, 3, 4, or s." ;;
+    esac
+done
 
 install_browser() {
     case "$browser_choice" in
