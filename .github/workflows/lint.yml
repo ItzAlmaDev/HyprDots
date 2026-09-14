@@ -21,7 +21,7 @@ jobs:
       - name: Validate JSON config files
         run: |
           echo "Validating waybar config..."
-          python3 -c "import json; json.load(open('configs/waybar/config.jsonc'))" || echo "::warning::waybar config.jsonc has JSON syntax issues (jsonc comments expected)"
+          python3 -c "import json, re; text = open('configs/waybar/config.jsonc').read(); clean = re.sub(r'//.*', '', text); clean = re.sub(r',\s*([}\]])', r'\1', clean); json.loads(clean)"
       - name: Validate wlogout layout
         run: |
           test -f configs/wlogout/layout || { echo "::error::wlogout layout missing"; exit 1; }
