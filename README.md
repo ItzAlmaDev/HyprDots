@@ -2,7 +2,7 @@
 
 # HyprDots
 
-### A Complete Guide to Hyprland Window Manager
+### A Complete setup for Hyprland Window Manager
 
 **A Hyprland configuration project for Arch Linux with pre-configured dotfiles and an automated installer.**
 
