@@ -1,0 +1,51 @@
+name: Lint installer scripts
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  shellcheck:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Syntax check
+        run: for f in scripts/installer/*.sh; do bash -n "$f"; done
+      - uses: ludeeus/action-shellcheck@2.0.0
+        with:
+          scandir: './scripts/installer'
+          severity: warning
+
+  validate-configs:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Validate JSON config files
+        run: |
+          echo "Validating waybar config..."
+          python3 -c "import json, re; text = open('configs/waybar/config.jsonc').read(); clean = re.sub(r'//.*', '', text); clean = re.sub(r',\s*([}\]])', r'\1', clean); json.loads(clean)"
+      - name: Validate required config files exist
+        run: |
+          for f in \
+            configs/hypr/hyprland.conf \
+            configs/hypr/hyprlock.conf \
+            configs/hypr/hypridle.conf \
+            configs/hypr/gpu.conf \
+            configs/waybar/config.jsonc \
+            configs/waybar/style.css \
+            configs/kitty/kitty.conf \
+            configs/kitty/theme.conf \
+            configs/dunst/dunstrc \
+            configs/tofi/configA \
+            configs/tofi/configV \
+            configs/wlogout/layout \
+            configs/wlogout/style.css; do
+            if [ ! -f "$f" ]; then
+              echo "::error file=$f::Required config file missing"
+              exit 1
+            fi
+          done
+          echo "All required config files present."
+      - name: Run installer test suite
+        run: bash scripts/test_installer.sh
