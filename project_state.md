@@ -54,12 +54,15 @@ Last updated: 2026-11-01
 | 39 | P2 | `hyprland.conf` | Scratchpad had no toggle, so `SUPER+SHIFT+S` moved windows somewhere unreachable — added `SUPER+grave` toggle and documented it | ✅ Done |
 | 40 | P1 | `prerequisites.sh` | `pacman -Sy` followed by installs is a partial upgrade and can break the system — now `pacman -Syu` | ✅ Done |
 | 41 | P3 | `hyprland.conf` | `bindm = $mainMod, Z/X, movewindow/resizewindow` duplicated the mouse drag binds and is invalid for keyboard keys — removed | ✅ Done |
+| 42 | P0 | `helper.sh` | Every section script re-sourced `helper.sh` and tried to take the lock already held by `install.sh`, so any selection aborted with "Another instance of the installer is running" — the lock is now taken once by the starting process, inherited by section scripts, and only its owner removes it | ✅ Done |
+| 43 | P2 | `final.sh` | `install.sh -d` always reported "Failed to copy Hyprland config files" because the post-copy check ran against a dry-run no-op — check now skipped in dry-run mode | ✅ Done |
+| 44 | P3 | `helper.sh`, `test_installer.sh` | Lock path assumed `XDG_RUNTIME_DIR` exists and is writable — falls back to `/tmp`; tests now isolate the lock and cover re-entry, cleanup and contention | ✅ Done |
 
 ## Summary
-- **Total fixes**: 41
-- **Completed**: 41
+- **Total fixes**: 44
+- **Completed**: 44
 - **Files changed**: 32
-- **Test results**: 33 passed, 0 failed, 1 skipped (shellcheck not installed)
+- **Test results**: 36 passed, 0 failed, 1 skipped (shellcheck not installed)
 
 ## New Files Created
 - `agent.md` — Agent reference document for this project

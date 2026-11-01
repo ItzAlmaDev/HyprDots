@@ -22,18 +22,29 @@ fi
 # Get the directory of the current script
 BASE_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")/../../")
 
-# Log file — rotate on start
+# Log file — rotated once by the process that starts the run
 LOG_FILE="$BASE_DIR/scripts/installer/hyprdots_install.log"
-if [[ -f "$LOG_FILE" ]]; then
-    mv "$LOG_FILE" "${LOG_FILE}.old"
-fi
 
-# Lock file to prevent concurrent runs
-LOCK_FILE="${XDG_RUNTIME_DIR:-/tmp}/hyprdots-install-$UID.lock"
-exec 9>"$LOCK_FILE"
-if ! flock -n 9; then
-    echo "Another instance of the installer is running. Please wait or remove $LOCK_FILE"
-    exit 1
+# Lock file to prevent concurrent runs. install.sh runs each section in a child
+# bash process that sources this file again, so only the process that started the
+# run may take the lock and remove it. Children inherit HYPRDOTS_INSTALL_LOCKED.
+LOCK_DIR="${XDG_RUNTIME_DIR:-/tmp}"
+if [[ ! -d "$LOCK_DIR" || ! -w "$LOCK_DIR" ]]; then
+    LOCK_DIR="/tmp"
+fi
+LOCK_FILE="$LOCK_DIR/hyprdots-install-$UID.lock"
+LOCK_ACQUIRED=false
+if [[ "${HYPRDOTS_INSTALL_LOCKED:-0}" != "1" ]]; then
+    if [[ -f "$LOG_FILE" ]]; then
+        mv "$LOG_FILE" "${LOG_FILE}.old"
+    fi
+    exec 9>"$LOCK_FILE"
+    if ! flock -n 9; then
+        echo "Another instance of the installer is running. Please wait or remove $LOCK_FILE" >&2
+        exit 1
+    fi
+    LOCK_ACQUIRED=true
+    export HYPRDOTS_INSTALL_LOCKED=1
 fi
 
 # Cleanup on exit (always runs) and signals (user interruption)
@@ -41,8 +52,12 @@ trap _cleanup EXIT
 trap '_signal_exit' INT TERM HUP
 
 function _cleanup {
-    rm -f "$LOCK_FILE"
-    log_message "Installer exited (lock released)"
+    # Only the process that holds the lock may release it; otherwise a section
+    # script finishing would delete the lock while install.sh is still running.
+    if [[ "$LOCK_ACQUIRED" == "true" ]]; then
+        rm -f "$LOCK_FILE"
+        log_message "Installer exited (lock released)"
+    fi
 }
 
 function _signal_exit {

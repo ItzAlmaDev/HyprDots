@@ -31,7 +31,7 @@ main() {
     run_command_array "Create Hyprland config directory" "no" "no" mkdir -p "$HOME/.config/hypr"
     deploy_config "$BASE_DIR/configs/hypr" "$HOME/.config/hypr"
 
-    if [[ ! -f "$HOME/.config/hypr/hyprland.conf" ]]; then
+    if [[ "${DRY_RUN:-false}" != "true" && ! -f "$HOME/.config/hypr/hyprland.conf" ]]; then
         print_error "Failed to copy Hyprland config files"
         log_message "Failed to copy Hyprland config files"
         echo "------------------------------------------------------------------------"

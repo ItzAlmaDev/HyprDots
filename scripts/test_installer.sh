@@ -86,6 +86,10 @@ echo ""
 echo "--- Dry-Run Safety ---"
 TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
+# Keep the installer lock out of the real runtime dir so the suite can never
+# collide with (or release) a genuine install running at the same time.
+export XDG_RUNTIME_DIR="$TMPDIR/run"
+mkdir -p "$XDG_RUNTIME_DIR"
 
 # Create a fake home to check dry-run doesn't modify it
 FAKE_HOME="$TMPDIR/home"
@@ -185,6 +189,48 @@ if [[ $un_guarded -eq 0 ]]; then
 else
     fail "$un_guarded unguarded autostart entries found"
 fi
+echo ""
+
+# --- Test 8: Concurrent-run lock is re-entrant for section scripts ---
+echo "--- Installer Lock ---"
+lock_dir="$TMPDIR/lock"
+mkdir -p "$lock_dir"
+
+lock_output=$(XDG_RUNTIME_DIR="$lock_dir" install_dir="$INSTALLER_DIR" bash -c '
+    set -euo pipefail
+    source "$install_dir/helper.sh"
+    bash -c "source \"$install_dir/helper.sh\"; echo section-ok"
+' 2>&1) || true
+
+if [[ "$lock_output" == *section-ok* ]]; then
+    pass "section scripts can re-source helper.sh while install.sh holds the lock"
+else
+    fail "section script was blocked by the installer lock"
+fi
+
+if [[ ! -e "$lock_dir/hyprdots-install-$UID.lock" ]]; then
+    pass "lock file removed when the install run exits"
+else
+    fail "lock file left behind after the install run exited"
+fi
+
+# A genuinely separate run must still be refused while the lock is held
+XDG_RUNTIME_DIR="$lock_dir" bash -c '
+    set -euo pipefail
+    source "$1/helper.sh"
+    sleep 2
+' _ "$INSTALLER_DIR" &
+holder=$!
+sleep 0.5
+if XDG_RUNTIME_DIR="$lock_dir" env -u HYPRDOTS_INSTALL_LOCKED bash -c '
+    set -euo pipefail
+    source "$1/helper.sh"
+' _ "$INSTALLER_DIR" >/dev/null 2>&1; then
+    fail "second installer was not refused while the lock is held"
+else
+    pass "second installer refused while the lock is held"
+fi
+wait "$holder" 2>/dev/null || true
 echo ""
 
 # --- Summary ---
