@@ -1,0 +1,73 @@
+# Hyprland & Critical Softwares 🖥️🔧
+With the prerequisite base system established, we proceed to the core of this guide. This section delineates the process of installing Hyprland and configuring critical system software to ensure a robust and efficient workflow.
+
+## Hyprland Installation 🚀
+1. **Install Hyprland:** 
+
+    ```bash
+    pacman -S hyprland
+    ```
+
+    **Pro Tip:💡** If you're feeling adventurous, you can always grab the bleeding-edge version from the AUR for the latest features and fixes.
+
+2. **Initiate Hyprland:**
+    As we installed SDDM before, you can also start the session through it.
+
+    ```bash
+    Hyprland
+    ```
+
+3. **Upon initial launch:** A top bar will display with a warning and commands to launch Kitty and exit Hyprland.
+
+    * Launch Kitty using the shortcut **`(SUPER + T)`**
+    * The warning will disappear once the config is properly deployed.
+
+    Essential default keybindings:
+    * **`SUPER + Q`:** Kill the active window
+    * **`SUPER + M`:** Quit hyprland (but why would you want to?)
+
+To access web resources, open Kitty and execute your browser (e.g., `brave`) to launch it.
+
+## Critical System Components 🛠️
+1. **XDG Desktop Portal:** The XDG Desktop Portal is crucial for handling desktop functionalities such as file dialogs and screensharing.
+
+    ```bash
+    pacman -S xdg-desktop-portal-hyprland
+    ```
+
+2. **Install Polkit:** Polkit manages system-wide privileges. Install the KDE version for compatibility:
+
+    ```bash
+    pacman -S polkit-kde-agent
+    ```
+    
+    * To autostart Polkit, append the following to your `hyprland.conf`:
+
+        ```conf
+        exec-once=/usr/lib/polkit-kde-authentication-agent-1
+        ```
+
+    * Note: Ensure there's no whitespace between `=` and `/`.
+
+3. **QT Wayland Support:** Install the necessary libraries for QT applications to function correctly under Wayland:
+
+    ```bash
+    pacman -S qt5-wayland qt6-wayland
+    ```
+
+4. **Notification Daemon:** A notification daemon is essential for managing system notifications. Many apps may freeze without one running. [Dunst](https://github.com/dunst-project/dunst) is a lightweight, customizable option:
+
+    ```bash
+    pacman -S dunst
+    ```
+
+    * To autostart dunst, append the following to your `hyprland.conf`:
+
+        ```conf
+        exec-once=/usr/bin/dunst
+        ```
+
+## Hyprland Session Reload 🔄
+After installing the critical software components and making the necessary configurations, restart your Hyprland session to ensure all new settings and software are properly initialized and integrated.
+
+**Previous:** [Prerequisites](prerequisites.md) 👈 | **Next:** [Basic Configuration](basic_configuration.md) 👉
