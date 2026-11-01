@@ -142,6 +142,20 @@ echo "--- Helper Functions ---"
     fi
     rm -rf /tmp/test_deploy_src /tmp/test_deploy_dst
 
+    # Test deploy_config refuses a destination it cannot write to
+    mkdir -p /tmp/test_deploy_ro_src /tmp/test_deploy_ro_dst
+    touch /tmp/test_deploy_ro_src/file
+    chmod 555 /tmp/test_deploy_ro_dst
+    if [[ $EUID -eq 0 ]]; then
+        echo "SKIP: root ignores directory permissions" >> "$TMPDIR/test_results"
+    elif deploy_config /tmp/test_deploy_ro_src /tmp/test_deploy_ro_dst >/dev/null 2>&1; then
+        echo "FAIL: deploy_config wrote to an unwritable destination" >> "$TMPDIR/test_results"
+    else
+        echo "PASS: deploy_config refuses an unwritable destination" >> "$TMPDIR/test_results"
+    fi
+    chmod 755 /tmp/test_deploy_ro_dst
+    rm -rf /tmp/test_deploy_ro_src /tmp/test_deploy_ro_dst
+
     # Test get_packages_from_section
     pkgs=$(get_packages_from_section "core")
     if echo "$pkgs" | grep -q "hyprland"; then
@@ -156,6 +170,8 @@ while IFS= read -r line; do
         pass "${line#PASS: }"
     elif [[ "$line" == FAIL:* ]]; then
         fail "${line#FAIL: }"
+    elif [[ "$line" == SKIP:* ]]; then
+        skip "${line#SKIP: }"
     fi
 done < "$TMPDIR/test_results"
 echo ""

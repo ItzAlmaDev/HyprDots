@@ -57,12 +57,13 @@ Last updated: 2026-11-01
 | 42 | P0 | `helper.sh` | Every section script re-sourced `helper.sh` and tried to take the lock already held by `install.sh`, so any selection aborted with "Another instance of the installer is running" — the lock is now taken once by the starting process, inherited by section scripts, and only its owner removes it | ✅ Done |
 | 43 | P2 | `final.sh` | `install.sh -d` always reported "Failed to copy Hyprland config files" because the post-copy check ran against a dry-run no-op — check now skipped in dry-run mode | ✅ Done |
 | 44 | P3 | `helper.sh`, `test_installer.sh` | Lock path assumed `XDG_RUNTIME_DIR` exists and is writable — falls back to `/tmp`; tests now isolate the lock and cover re-entry, cleanup and contention | ✅ Done |
+| 45 | P1 | `helper.sh` | `deploy_config` copied over files left by an earlier root install and died halfway with a bare `cp: Permission denied` — it now checks the destination up front and prints the exact `chown` command | ✅ Done |
 
 ## Summary
-- **Total fixes**: 44
-- **Completed**: 44
+- **Total fixes**: 45
+- **Completed**: 45
 - **Files changed**: 32
-- **Test results**: 36 passed, 0 failed, 1 skipped (shellcheck not installed)
+- **Test results**: 37 passed, 0 failed, 1 skipped (shellcheck not installed)
 
 ## New Files Created
 - `agent.md` — Agent reference document for this project

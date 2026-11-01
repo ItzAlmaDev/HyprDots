@@ -407,6 +407,21 @@ function deploy_config {
         print_info "[DRY RUN] Would deploy: $src -> $dst"
         return 0
     fi
+    # Refuse up front instead of half-copying: files created by an earlier
+    # `sudo` run belong to root and cannot be overwritten by this user.
+    local blocked=""
+    if [[ -e "$dst" && ! -w "$dst" ]]; then
+        blocked="$dst"
+    elif [[ -d "$dst" ]]; then
+        blocked="$(find "$dst" ! -writable -print -quit 2>/dev/null || true)"
+    fi
+    if [[ -n "$blocked" ]]; then
+        print_error "Cannot write to $blocked (permission denied)."
+        print_error "It was probably created by an earlier install run as root."
+        print_error "Fix it and run the installer again:"
+        print_error "  sudo chown -R \"$(id -un)\": \"$dst\""
+        return 1
+    fi
     mkdir -p "$dst"
     if [[ -d "$src" ]]; then
         # Use find + cp to handle hidden files correctly
