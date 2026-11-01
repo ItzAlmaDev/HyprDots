@@ -1,0 +1,129 @@
+#!/bin/bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BASE_DIR=$(realpath "$SCRIPT_DIR/../../")
+
+source "$SCRIPT_DIR/helper.sh"
+
+if [ "$(id -u)" -eq 0 ]; then
+    print_error "This script should not be run as root. Please run as a regular user."
+    exit 1
+fi
+
+setup_waybar() {
+    print_info "Installing and configuring waybar..."
+    if ! backup_or_skip "waybar" "waybar"; then return; fi
+
+    run_command "pacman -S --noconfirm --needed waybar" "Install Waybar (Recommended)" "yes"
+    print_info "Copying waybar configs..."
+    deploy_config "$BASE_DIR/configs/waybar" "$HOME/.config/waybar"
+    if [[ ! -d "$HOME/.config/waybar" ]]; then
+        print_error "Failed to copy waybar config"
+        log_message "Failed to copy waybar config"
+        return 1
+    else
+        record_owned_config_files "$BASE_DIR/configs/waybar" "$HOME/.config/waybar"
+    fi
+}
+
+setup_tofi() {
+    print_info "Installing and configuring tofi..."
+    if ! backup_or_skip "tofi" "tofi"; then return; fi
+
+    run_command "pacman -S --noconfirm --needed tofi" "Install Tofi (Recommended)" "yes"
+    print_info "Copying tofi config files..."
+    deploy_config "$BASE_DIR/configs/tofi" "$HOME/.config/tofi"
+    if [[ ! -d "$HOME/.config/tofi" ]]; then
+        print_error "Failed to copy tofi config"
+        log_message "Failed to copy tofi config"
+        return 1
+    else
+        record_owned_config_files "$BASE_DIR/configs/tofi" "$HOME/.config/tofi"
+    fi
+}
+
+setup_kitty() {
+    print_info "Installing and configuring kitty..."
+    if ! backup_or_skip "kitty" "kitty"; then return; fi
+
+    run_command "pacman -S --noconfirm --needed kitty" "Install Kitty (Recommended)" "yes"
+    print_info "Copying kitty config files..."
+    deploy_config "$BASE_DIR/configs/kitty" "$HOME/.config/kitty"
+    if [[ ! -d "$HOME/.config/kitty" ]]; then
+        print_error "Failed to copy kitty config"
+        log_message "Failed to copy kitty config"
+        return 1
+    else
+        record_owned_config_files "$BASE_DIR/configs/kitty" "$HOME/.config/kitty"
+    fi
+}
+
+setup_dunst() {
+    print_info "Installing and configuring dunst..."
+    if ! backup_or_skip "dunst" "dunst"; then return; fi
+
+    run_command "pacman -S --noconfirm --needed dunst" "Install Dunst notification daemon" "yes"
+
+    print_info "Copying dunst config files..."
+    deploy_config "$BASE_DIR/configs/dunst" "$HOME/.config/dunst"
+    if [[ ! -d "$HOME/.config/dunst" ]]; then
+        print_error "Failed to copy dunst config"
+        log_message "Failed to copy dunst config"
+        return 1
+    else
+        record_owned_config_files "$BASE_DIR/configs/dunst" "$HOME/.config/dunst"
+    fi
+}
+
+setup_wlogout() {
+    print_info "Installing and configuring wlogout..."
+    if ! backup_or_skip "wlogout" "wlogout"; then return; fi
+
+    run_command "pacman -S --noconfirm --needed wlogout" "Install Wlogout (Recommended)" "yes"
+    print_info "Copying wlogout config files..."
+    deploy_config "$BASE_DIR/configs/wlogout" "$HOME/.config/wlogout"
+    if [[ ! -d "$HOME/.config/wlogout" ]]; then
+        print_error "Failed to copy wlogout config"
+        log_message "Failed to copy wlogout config"
+        return 1
+    else
+        record_owned_config_files "$BASE_DIR/configs/wlogout" "$HOME/.config/wlogout"
+    fi
+}
+
+main() {
+    log_message "Installation started for Utilities section"
+    print_info "\nStarting Utilities setup..."
+
+    refresh_sudo
+
+    run_command "yay -S --sudoloop --noconfirm --needed grimblast-git" "Install Screenshot tool (Recommended)" "yes" "no"
+
+    run_command "yay -S --sudoloop --noconfirm --needed awww" "Install awww wallpaper daemon (Recommended)" "yes" "no"
+
+    run_command "yay -S --sudoloop --noconfirm --needed hyprpicker" "Install Color Picker (Recommended)" "yes" "no"
+
+    run_command "pacman -S --noconfirm --needed wl-clipboard" "Install Wayland clipboard utilities (Required)" "yes"
+
+    run_command "pacman -S --noconfirm --needed cliphist" "Install Clipboard (Recommended)" "yes"
+
+    run_command "pacman -S --noconfirm --needed nautilus" "Install Nautilus file manager (Recommended)" "yes"
+
+    setup_waybar
+    setup_tofi
+    setup_kitty
+    setup_dunst
+
+    print_info "Installing and configuring hyprlock..."
+    run_command "pacman -S --noconfirm --needed hyprlock" "Install Hyprlock (Recommended)" "yes"
+
+    print_info "Installing and configuring hypridle..."
+    run_command "pacman -S --noconfirm --needed hypridle" "Install Hypridle (Recommended)" "yes"
+
+    setup_wlogout
+
+    echo "------------------------------------------------------------------------"
+}
+
+main "$@"

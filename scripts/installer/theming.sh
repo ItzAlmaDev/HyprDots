@@ -1,0 +1,135 @@
+#!/bin/bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+source "$SCRIPT_DIR/helper.sh"
+
+if [ "$(id -u)" -eq 0 ]; then
+    print_error "This script should not be run as root. Please run as a regular user."
+    exit 1
+fi
+
+# Helper: restore backups for theme-related config directories on failure
+restore_theme_backups() {
+    print_warning "Theme application had errors. Restoring backups..."
+    while IFS='|' read -r original backup _; do
+        case "$original" in
+            *gtk-3.0|*gtk-4.0|*Kvantum)
+                if [[ -d "$backup" ]]; then
+                    rm -rf "$original"
+                    cp -r "$backup" "$original"
+                    print_info "Restored: $original from $backup"
+                fi
+                ;;
+        esac
+    done < "$BACKUPS_MANIFEST"
+}
+
+main() {
+    log_message "Installation started for Theming section"
+    print_info "\nStarting theming setup..."
+
+    refresh_sudo
+
+    run_command "pacman -S --noconfirm --needed nwg-look" "Install nwg-look for GTK configuration (Recommended)" "yes"
+
+    echo ""
+    print_info "Choose your theme:"
+    echo "1) Catppuccin Mocha (purple/pink theme with Tela Circle Dracula icons)"
+    echo "2) Adwaita Dark (Adwaita icons)"
+    echo ""
+    while true; do
+        read -r -p "Select theme [1/2]: " theme_choice
+        case "$theme_choice" in
+            1)
+                apply_catppuccin
+                break
+                ;;
+            2)
+                apply_adwaita
+                break
+                ;;
+            *) print_error "Invalid selection. Please enter 1 or 2." ;;
+        esac
+    done
+
+    echo "------------------------------------------------------------------------"
+}
+
+apply_adwaita() {
+    for conf_dir in "gtk-3.0" "gtk-4.0" "Kvantum"; do
+        backup_config "$HOME/.config/$conf_dir" "$conf_dir"
+    done
+
+    local theme_failed=false
+
+    print_info "Applying Adwaita Dark GTK theme..."
+    if ! run_command "nwg-look -s Adwaita-dark" "Set GTK theme" "no" "no"; then
+        theme_failed=true
+    fi
+
+    print_info "Applying Adwaita icon theme..."
+    if ! run_command "nwg-look -i Adwaita" "Set icon theme" "no" "no"; then
+        theme_failed=true
+    fi
+
+    print_info "Applying Adwaita color scheme..."
+    if ! run_command "nwg-look -c Prefer-dark" "Set color scheme" "no" "no"; then
+        theme_failed=true
+    fi
+
+    if $theme_failed; then
+        restore_theme_backups
+        return 1
+    fi
+}
+
+apply_catppuccin() {
+    for conf_dir in "gtk-3.0" "gtk-4.0" "Kvantum"; do
+        backup_config "$HOME/.config/$conf_dir" "$conf_dir"
+    done
+
+    local theme_failed=false
+
+    if [ ! -d "$HOME/.config/Kvantum" ]; then
+        print_info "Installing Catppuccin Mocha Kvantum theme..."
+        if ! run_command "yay -S --sudoloop --noconfirm --needed kvantum-theme-catppuccin-git" "Install Catppuccin Kvantum theme" "yes" "no"; then
+            theme_failed=true
+        fi
+    fi
+
+    if ! command -v kvantummanager > /dev/null 2>&1; then
+        print_warning "kvantummanager not found. Installing kvantum..."
+        if ! run_command "pacman -S --noconfirm --needed kvantum" "Install Kvantum theme engine" "yes"; then
+            theme_failed=true
+        fi
+    fi
+
+    print_info "Applying Catppuccin Mocha Kvantum theme..."
+    if ! run_command "kvantummanager --set Catppuccin-Mocha" "Set Kvantum theme" "no" "no"; then
+        theme_failed=true
+    fi
+
+    print_info "Applying Catppuccin Mocha GTK theme..."
+    if ! run_command "nwg-look -s Catppuccin-Mocha" "Set GTK theme" "no" "no"; then
+        theme_failed=true
+    fi
+
+    print_info "Applying Tela Circle Dracula icon theme..."
+    if ! run_command "nwg-look -i Tela-circle-dracula" "Set icon theme" "no" "no"; then
+        theme_failed=true
+    fi
+
+    print_info "Applying Catppuccin Mocha color scheme..."
+    if ! run_command "nwg-look -c Catppuccin-Mocha" "Set color scheme" "no" "no"; then
+        theme_failed=true
+    fi
+
+    if $theme_failed; then
+        restore_theme_backups
+        return 1
+    fi
+}
+
+main "$@"
