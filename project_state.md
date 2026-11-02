@@ -58,10 +58,11 @@ Last updated: 2026-11-01
 | 43 | P2 | `final.sh` | `install.sh -d` always reported "Failed to copy Hyprland config files" because the post-copy check ran against a dry-run no-op — check now skipped in dry-run mode | ✅ Done |
 | 44 | P3 | `helper.sh`, `test_installer.sh` | Lock path assumed `XDG_RUNTIME_DIR` exists and is writable — falls back to `/tmp`; tests now isolate the lock and cover re-entry, cleanup and contention | ✅ Done |
 | 45 | P1 | `helper.sh` | `deploy_config` copied over files left by an earlier root install and died halfway with a bare `cp: Permission denied` — it now checks the destination up front and prints the exact `chown` command | ✅ Done |
+| 46 | P2 | `.github/workflows/lint.yml`, `.gitignore` | Shellcheck only scanned `scripts/installer`, so `scripts/test_installer.sh` was never linted; `*.tar.xz` also excluded the shipped theme/icon archives from `git add` — CI now scans all of `scripts/` and the assets are explicitly re-included | ✅ Done |
 
 ## Summary
-- **Total fixes**: 45
-- **Completed**: 45
+- **Total fixes**: 46
+- **Completed**: 46
 - **Files changed**: 32
 - **Test results**: 37 passed, 0 failed, 1 skipped (shellcheck not installed)
 

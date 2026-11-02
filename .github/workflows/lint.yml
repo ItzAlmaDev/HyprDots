@@ -1,4 +1,4 @@
-name: Lint installer scripts
+name: Lint shell scripts
 
 on: [push, pull_request]
 
@@ -11,10 +11,13 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Syntax check
-        run: for f in scripts/installer/*.sh; do bash -n "$f"; done
+        run: |
+          for f in scripts/installer/*.sh scripts/test_installer.sh; do
+            bash -n "$f"
+          done
       - uses: ludeeus/action-shellcheck@2.0.0
         with:
-          scandir: './scripts/installer'
+          scandir: './scripts'
           severity: warning
 
   validate-configs:
