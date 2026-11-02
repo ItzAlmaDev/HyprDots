@@ -16,3 +16,7 @@ scripts/installer/hyprdots_install.log*
 # Build artifacts
 *.tar.gz
 *.tar.xz
+
+# ...except the theme and icon archives that ship with the repo
+!assets/**/*.tar.gz
+!assets/**/*.tar.xz
